@@ -1,0 +1,38 @@
+/* Estilos para reportes de productos */
+
+.reporte-card {
+  border: 1px solid var(--neutral, #E5E7EB);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: box-shadow 0.2s;
+}
+
+.reporte-card:hover {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.reporte-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.reporte-estado.pendiente  { background: #FEF3C7; color: #92400E; }
+.reporte-estado.revisado   { background: #DBEAFE; color: #1E40AF; }
+.reporte-estado.resuelto   { background: #D1FAE5; color: #065F46; }
+.reporte-estado.rechazado  { background: #FEE2E2; color: #991B1B; }
+
+.motivo-tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  background: var(--secondary, #FFF7ED);
+  color: var(--primary, #D97706);
+  font-size: 0.8rem;
+  font-weight: 500;
+}

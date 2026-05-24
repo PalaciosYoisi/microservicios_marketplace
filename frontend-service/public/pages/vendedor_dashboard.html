@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Vendedor | EmprendeMarket</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link href="/css/marketplace.css" rel="stylesheet">
+  <link href="/css/estilos.css" rel="stylesheet">
+  <link href="/css/dashboard.css" rel="stylesheet">
+  <style>
+    .drop-zone {
+      border: 2px dashed var(--primary);
+      border-radius: 10px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .drop-zone.dragover, .drop-zone:hover { background: #fff7ed; }
+    .img-preview-box { max-height: 180px; overflow: hidden; border-radius: 8px; }
+    .img-preview-box img { width: 100%; object-fit: cover; max-height: 180px; }
+    .tab-img-btn { border: none; background: none; padding: .4rem 1rem; font-size: .9rem;
+                   border-bottom: 2px solid transparent; color: #666; cursor: pointer; }
+    .tab-img-btn.active { border-bottom-color: var(--primary); color: var(--primary); font-weight: 600; }
+    .foto-perfil-wrap { position: relative; display: inline-block; }
+    .foto-perfil-wrap label { position: absolute; bottom: 0; right: 0; background: var(--primary);
+      color: #fff; border-radius: 50%; width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+    #fotoSidebar { width: 60px; height: 60px; object-fit: cover; border-radius: 50%; }
+    .talla-chip {
+      cursor: pointer; font-size: .82rem; padding: .35em .75em;
+      border-radius: 20px; user-select: none; transition: background .15s, transform .1s;
+      border: 2px solid transparent;
+    }
+    .talla-chip:hover { transform: scale(1.08); }
+    .talla-chip.selected { background: var(--primary) !important; color: #fff !important; border-color: var(--primary); }
+    .talla-chip:not(.selected) { background: #e9ecef; color: #495057; border-color: #dee2e6; }
+    /* ── Mensajes ── */
+    .conv-item:hover { background: #f8f9fa; }
+    .conv-item.activa { background: #fff7ed; border-left: 3px solid var(--primary); }
+    #mensajesPanel { scroll-behavior: smooth; }
+    .notif-item:hover { background: #f8f9fa; }
+  </style>
+</head>
+<body class="bg-background dashboard-layout">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="dashboard-sidebar d-flex flex-column p-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="sidebar-brand d-flex align-items-center">
+        <span class="material-symbols-outlined text-primary me-2">storefront</span>
+        <span class="fw-bold sidebar-text">EmprendeMarket</span>
+      </div>
+      <button id="sidebar-toggle" class="btn btn-sm" onclick="toggleSidebar()">
+        <span class="material-symbols-outlined icon-sm">menu</span>
+      </button>
+    </div>
+
+    <div id="perfilSidebar" class="text-center mb-4 sidebar-text">
+      <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center mb-2 overflow-hidden" style="width:60px;height:60px">
+        <img id="fotoSidebar" class="d-none" alt="Foto perfil">
+        <span id="iconoSidebar" class="material-symbols-outlined text-white icon-lg">person</span>
+      </div>
+      <div class="fw-bold small" id="nombreUsuario">Cargando...</div>
+      <div class="badge bg-warning text-dark small">Emprendedor</div>
+    </div>
+
+    <nav class="flex-grow-1">
+      <a href="#" class="nav-link active" onclick="mostrarSeccion('dashboard')">
+        <span class="material-symbols-outlined me-3">dashboard</span>
+        <span class="sidebar-text">Dashboard</span>
+      </a>
+      <a href="#" class="nav-link" onclick="mostrarSeccion('productos')">
+        <span class="material-symbols-outlined me-3">inventory_2</span>
+        <span class="sidebar-text">Mis Productos</span>
+      </a>
+      <a href="#" class="nav-link" onclick="mostrarSeccion('pedidos')">
+        <span class="material-symbols-outlined me-3">receipt_long</span>
+        <span class="sidebar-text">Pedidos</span>
+      </a>
+      <a href="#" class="nav-link" onclick="mostrarSeccion('tienda')">
+        <span class="material-symbols-outlined me-3">store</span>
+        <span class="sidebar-text">Mi Tienda</span>
+      </a>
+      <a href="#" class="nav-link" onclick="mostrarSeccion('perfil')">
+        <span class="material-symbols-outlined me-3">manage_accounts</span>
+        <span class="sidebar-text">Mi Perfil</span>
+      </a>
+      <a href="#" class="nav-link" onclick="mostrarSeccion('reportes')">
+        <span class="material-symbols-outlined me-3">flag</span>
+        <span class="sidebar-text">Reportes</span>
+      </a>
+      <a href="#" class="nav-link" onclick="mostrarSeccion('mensajes')">
+        <span class="material-symbols-outlined me-3">chat</span>
+        <span class="sidebar-text">Mensajes</span>
+      </a>
+      <a href="#" class="nav-link position-relative" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNotif" onclick="cargarNotificaciones()">
+        <span class="material-symbols-outlined me-3">notifications</span>
+        <span class="sidebar-text">Notificaciones</span>
+        <span id="badgeNotif" class="badge bg-danger d-none" style="position:absolute;top:6px;left:34px;font-size:.6rem;padding:2px 5px">0</span>
+      </a>
+    </nav>
+
+    <div class="mt-auto">
+      <button class="nav-link w-100 text-start border-0 bg-transparent text-danger" onclick="cerrarSesion()">
+        <span class="material-symbols-outlined me-3">logout</span>
+        <span class="sidebar-text">Cerrar sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main id="main-content" class="p-4">
+
+    <!-- ── Dashboard ── -->
+    <div id="sec-dashboard">
+      <h4 class="fw-bold mb-4"><span class="material-symbols-outlined me-2">dashboard</span>Dashboard</h4>
+      <div id="alertaTienda" class="alert alert-warning d-none"></div>
+      <div class="row g-4 mb-4" id="statsCards">
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div><div class="text-muted small mb-1">Productos activos</div><div class="h3 fw-bold" id="statProductos">—</div></div>
+              <div class="dashboard-icon-bg"><span class="material-symbols-outlined icon-lg">inventory_2</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div><div class="text-muted small mb-1">Pedidos totales</div><div class="h3 fw-bold" id="statPedidos">—</div></div>
+              <div class="dashboard-icon-bg"><span class="material-symbols-outlined icon-lg">receipt_long</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div><div class="text-muted small mb-1">Ventas del mes</div><div class="h3 fw-bold" id="statVentas">—</div></div>
+              <div class="dashboard-icon-bg"><span class="material-symbols-outlined icon-lg">payments</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div><div class="text-muted small mb-1">Stock bajo</div><div class="h3 fw-bold text-warning" id="statStockBajo">—</div></div>
+              <div class="dashboard-icon-bg"><span class="material-symbols-outlined icon-lg">warning</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Productos ── -->
+    <div id="sec-productos" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0"><span class="material-symbols-outlined me-2">inventory_2</span>Mis Productos</h4>
+        <button id="btnNuevoProducto" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProducto" onclick="prepararModalProducto()">
+          <span class="material-symbols-outlined icon-sm me-2">add</span>Nuevo Producto
+        </button>
+      </div>
+      <div id="listaProductos" class="row g-3"></div>
+    </div>
+
+    <!-- ── Pedidos ── -->
+    <div id="sec-pedidos" class="d-none">
+      <h4 class="fw-bold mb-4"><span class="material-symbols-outlined me-2">receipt_long</span>Pedidos</h4>
+      <div id="listaPedidos"></div>
+    </div>
+
+    <!-- ── Tienda ── -->
+    <div id="sec-tienda" class="d-none">
+      <h4 class="fw-bold mb-4"><span class="material-symbols-outlined me-2">store</span>Mi Tienda</h4>
+      <div id="infoTienda"></div>
+    </div>
+
+    <!-- ── Reportes ── -->
+    <div id="sec-reportes" class="d-none">
+      <h4 class="fw-bold mb-4"><span class="material-symbols-outlined me-2">flag</span>Reportes y PQRS</h4>
+
+      <!-- Formulario nuevo reporte -->
+      <div class="card shadow-soft mb-4">
+        <div class="card-header bg-white">
+          <h6 class="fw-bold mb-0"><span class="material-symbols-outlined icon-sm me-2 text-warning">add_circle</span>Enviar nuevo reporte</h6>
+        </div>
+        <div class="card-body">
+          <form id="formReporteV" onsubmit="enviarReporteV(event)">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label fw-medium">Tipo de incidencia</label>
+                <select id="motivoReporteV" class="form-select" required>
+                  <option value="">Selecciona una opción</option>
+                  <option value="pedido">Problema con un pedido</option>
+                  <option value="comprador">Comportamiento del comprador</option>
+                  <option value="tecnico">Error técnico</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+              <div class="col-md-8">
+                <label class="form-label fw-medium">Descripción</label>
+                <textarea id="descReporteV" class="form-control" rows="2" placeholder="Describe el problema..." required></textarea>
+              </div>
+            </div>
+            <div id="alertaReporteV" class="alert d-none mt-3 mb-0"></div>
+            <div class="mt-3">
+              <button type="submit" class="btn btn-warning">
+                <span class="material-symbols-outlined icon-sm me-1">send</span>Enviar reporte
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Reportes recibidos de compradores -->
+      <div class="card shadow-soft mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold mb-0">
+            <span class="material-symbols-outlined icon-sm me-2 text-danger">inbox</span>Reportes recibidos de compradores
+          </h6>
+          <button class="btn btn-sm btn-outline-secondary" onclick="cargarReportesV()">
+            <span class="material-symbols-outlined icon-sm">refresh</span>
+          </button>
+        </div>
+        <div class="card-body p-0" id="listaReportesRecibidos">
+          <div class="text-center py-4"><div class="spinner-border text-warning spinner-border-sm"></div></div>
+        </div>
+      </div>
+
+      <!-- Reportes enviados por el vendedor -->
+      <div class="card shadow-soft">
+        <div class="card-header bg-white">
+          <h6 class="fw-bold mb-0"><span class="material-symbols-outlined icon-sm me-2">list</span>Mis reportes enviados</h6>
+        </div>
+        <div class="card-body p-0" id="listaReportesV">
+          <div class="text-center py-4"><div class="spinner-border text-warning spinner-border-sm"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Mensajes ── -->
+    <div id="sec-mensajes" class="d-none">
+      <h4 class="fw-bold mb-3"><span class="material-symbols-outlined me-2">chat</span>Mensajes</h4>
+      <div class="row g-3" style="height:calc(100vh - 200px);min-height:460px">
+
+        <!-- Lista de conversaciones -->
+        <div class="col-md-4 col-lg-3 h-100">
+          <div class="card shadow-soft h-100 d-flex flex-column">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-2">
+              <span class="fw-bold small">Conversaciones</span>
+              <button class="btn btn-sm btn-outline-primary" onclick="mostrarNuevaConv()" title="Nueva conversación">
+                <span class="material-symbols-outlined icon-sm">edit</span>
+              </button>
+            </div>
+            <div id="listaConversaciones" class="overflow-auto flex-grow-1">
+              <div class="text-center py-4 text-muted small">
+                <div class="spinner-border spinner-border-sm text-primary"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel de mensajes -->
+        <div class="col-md-8 col-lg-9 h-100">
+          <div class="card shadow-soft h-100 d-flex flex-column">
+            <div class="card-header bg-white py-2" id="convHeader">
+              <span class="text-muted small">Selecciona una conversación para comenzar</span>
+            </div>
+            <div id="mensajesPanel" class="overflow-auto flex-grow-1 p-3" style="min-height:0">
+              <div class="text-center text-muted py-5">
+                <span class="material-symbols-outlined" style="font-size:48px">chat_bubble_outline</span>
+                <p class="mt-2 small">Tus mensajes aparecerán aquí</p>
+              </div>
+            </div>
+            <div id="formMensajeWrap" class="card-footer bg-white p-2" style="display:none">
+              <form id="formMensaje" onsubmit="enviarMensajeV(event)" class="d-flex gap-2">
+                <input type="hidden" id="convDestId">
+                <input type="text" id="inputMensaje" class="form-control form-control-sm"
+                  placeholder="Escribe un mensaje..." required autocomplete="off">
+                <button type="submit" class="btn btn-primary btn-sm px-3">
+                  <span class="material-symbols-outlined icon-sm">send</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Perfil ── -->
+    <div id="sec-perfil" class="d-none">
+      <h4 class="fw-bold mb-4"><span class="material-symbols-outlined me-2">manage_accounts</span>Mi Perfil</h4>
+      <div class="row justify-content-center">
+        <div class="col-lg-7">
+          <div class="card shadow-soft">
+            <div class="card-body p-4">
+
+              <!-- Foto de perfil -->
+              <div class="text-center mb-4">
+                <div class="foto-perfil-wrap">
+                  <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center overflow-hidden" style="width:90px;height:90px">
+                    <img id="fotoActual" src="" class="d-none" style="width:90px;height:90px;object-fit:cover" alt="Foto">
+                    <span class="material-symbols-outlined text-white" style="font-size:48px" id="iconoPerfil">person</span>
+                  </div>
+                  <label for="inputFoto" title="Cambiar foto">
+                    <span class="material-symbols-outlined" style="font-size:16px">photo_camera</span>
+                  </label>
+                  <input type="file" id="inputFoto" class="d-none" accept="image/*" onchange="previsualizarFoto(this)">
+                </div>
+                <div class="text-muted small mt-2">Haz clic en la cámara para cambiar tu foto</div>
+              </div>
+
+              <form onsubmit="guardarPerfil(event)">
+                <div class="row g-3 mb-3">
+                  <div class="col-6">
+                    <label class="form-label fw-medium">Nombre</label>
+                    <input type="text" id="perfilNombre" class="form-control" required>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label fw-medium">Apellido</label>
+                    <input type="text" id="perfilApellido" class="form-control" required>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-medium">Correo electrónico</label>
+                  <input type="email" id="perfilCorreo" class="form-control" disabled>
+                  <div class="form-text">El correo no se puede cambiar.</div>
+                </div>
+                <div class="row g-3 mb-3">
+                  <div class="col-6">
+                    <label class="form-label fw-medium">Cédula</label>
+                    <input type="text" id="perfilCedula" class="form-control">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label fw-medium">Teléfono</label>
+                    <input type="tel" id="perfilTelefono" class="form-control">
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-medium">Descripción / Bio</label>
+                  <textarea id="perfilBio" class="form-control" rows="3" placeholder="Cuéntanos sobre ti y tu negocio..."></textarea>
+                </div>
+                <div id="perfilAlert" class="alert d-none"></div>
+                <button type="submit" class="btn btn-primary w-100">
+                  <span class="material-symbols-outlined icon-sm me-2">save</span>Guardar cambios
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── Modal: Nuevo/Editar Producto ── -->
+  <div class="modal fade" id="modalProducto" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="modalProductoTitulo">Nuevo Producto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="formProducto" onsubmit="guardarProducto(event)" novalidate>
+          <div class="modal-body">
+            <input type="hidden" id="productoId">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-medium">Nombre del producto *</label>
+                <input type="text" id="prodNombre" class="form-control" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-medium">Descripción</label>
+                <textarea id="prodDescripcion" class="form-control" rows="2"></textarea>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-medium">Precio *</label>
+                <input type="number" id="prodPrecio" class="form-control" min="0" step="100" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-medium">Stock</label>
+                <input type="number" id="prodStock" class="form-control" min="0" value="0">
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-medium">Categoría</label>
+                <select id="prodCategoria" class="form-select" onchange="actualizarTallas(this.value)">
+                  <option value="General">General</option>
+                  <option value="Ropa">Ropa</option>
+                  <option value="Zapatos / Calzado">Zapatos / Calzado</option>
+                  <option value="Ropa Infantil">Ropa Infantil</option>
+                  <option value="Bolsos y Accesorios">Bolsos y Accesorios</option>
+                  <option value="Deportes">Deportes</option>
+                  <option value="Alimentos">Alimentos</option>
+                  <option value="Artesanías">Artesanías</option>
+                  <option value="Tecnología">Tecnología</option>
+                  <option value="Hogar">Hogar</option>
+                  <option value="Belleza">Belleza</option>
+                  <option value="Joyería">Joyería</option>
+                </select>
+              </div>
+
+              <!-- ── Tallas / Tamaños ── -->
+              <div class="col-12" id="contenedorTallas" style="display:none">
+                <label class="form-label fw-medium">
+                  <span class="material-symbols-outlined icon-sm align-middle me-1">straighten</span>Tallas / Tamaños disponibles
+                </label>
+                <div id="tallasChips" class="d-flex flex-wrap gap-2 p-3 border rounded bg-light"></div>
+                <div class="form-text">Haz clic en una talla para seleccionarla y luego ingresa el stock para esa talla.</div>
+                <!-- Stock por talla (aparece cuando hay tallas seleccionadas) -->
+                <div id="tallasStockInputs" class="mt-2 d-none">
+                  <div class="form-text fw-medium mb-2">
+                    <span class="material-symbols-outlined icon-sm align-middle me-1">inventory</span>Stock por talla:
+                  </div>
+                  <div id="tallasStockGrid" class="d-flex flex-wrap gap-2"></div>
+                </div>
+              </div>
+
+              <!-- ── Imagen multi-modo ── -->
+              <div class="col-12">
+                <label class="form-label fw-medium">Imagen del producto</label>
+
+                <!-- Tabs -->
+                <div class="border-bottom mb-3">
+                  <button type="button" id="tab-archivo" class="tab-img-btn active" onclick="activarPestanaImagen('archivo')">
+                    <span class="material-symbols-outlined icon-sm align-middle me-1">upload_file</span>Desde dispositivo
+                  </button>
+                  <button type="button" id="tab-url" class="tab-img-btn" onclick="activarPestanaImagen('url')">
+                    <span class="material-symbols-outlined icon-sm align-middle me-1">link</span>URL / Pegar
+                  </button>
+                </div>
+
+                <!-- Panel: archivo (drag & drop) -->
+                <div id="panel-archivo">
+                  <div id="dropZone" class="drop-zone">
+                    <span class="material-symbols-outlined" style="font-size:40px;color:var(--primary)">cloud_upload</span>
+                    <p class="drop-text mt-2 mb-1">Arrastra una imagen aquí o haz clic para seleccionar</p>
+                    <p class="text-muted small">También puedes pegar (Ctrl+V) una imagen copiada</p>
+                    <input type="file" id="fileInput" class="d-none" accept="image/*">
+                  </div>
+                </div>
+
+                <!-- Panel: URL -->
+                <div id="panel-url" class="d-none">
+                  <div class="input-group">
+                    <input type="text" id="prodImagenUrl" class="form-control" placeholder="https://ejemplo.com/imagen.jpg">
+                    <button type="button" class="btn btn-outline-primary" onclick="aplicarUrl()">Aplicar</button>
+                  </div>
+                  <div class="form-text">Pega la URL de una imagen y presiona Aplicar.</div>
+                </div>
+
+                <!-- Preview unificada -->
+                <div id="imgPreviewBox" class="img-preview-box mt-3" style="max-height:160px">
+                  <img id="imgPreview" src="" class="d-none rounded" style="max-height:160px;max-width:100%;object-fit:cover">
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div id="modalProductoAlert" class="alert d-none"></div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" id="btnGuardarProducto" class="btn btn-primary">
+              <span class="material-symbols-outlined icon-sm me-2">save</span>Guardar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Crear Tienda ── -->
+  <div class="modal fade" id="modalTienda" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Crear mi Tienda</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="formTienda" onsubmit="guardarTienda(event)">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label fw-medium">Nombre de la tienda *</label>
+              <input type="text" id="tiendaNombre" class="form-control" required placeholder="Ej: Artesanías García">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-medium">Descripción</label>
+              <textarea id="tiendaDescripcion" class="form-control" rows="3" placeholder="Describe tu tienda..."></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-medium">Categoría</label>
+              <select id="tiendaCategoria" class="form-select">
+                <option value="General">General</option>
+                <option value="Ropa">Ropa</option>
+                <option value="Alimentos">Alimentos</option>
+                <option value="Artesanías">Artesanías</option>
+                <option value="Tecnología">Tecnología</option>
+                <option value="Hogar">Hogar</option>
+                <option value="Belleza">Belleza</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-medium">Teléfono de contacto</label>
+              <input type="tel" id="tiendaTelefono" class="form-control" placeholder="Ej: 3001234567">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-medium">Horario de atención</label>
+              <input type="text" id="tiendaHorario" class="form-control" placeholder="Ej: Lun-Vie 8am-6pm">
+            </div>
+            <div class="alert alert-info small">
+              <span class="material-symbols-outlined icon-sm me-1">info</span>
+              Tu tienda quedará <strong>pendiente de aprobación</strong> por un administrador antes de poder vender.
+            </div>
+            <div id="modalTiendaAlert" class="alert d-none"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">
+              <span class="material-symbols-outlined icon-sm me-2">add_business</span>Crear Tienda
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="alert position-fixed bottom-0 end-0 m-3 shadow-strong d-none" style="z-index:9999;min-width:280px"></div>
+
+  <!-- ── Offcanvas: Notificaciones ── -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNotif" aria-labelledby="offcanvasNotifTitle" style="width:380px;max-width:95vw">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title fw-bold" id="offcanvasNotifTitle">
+        <span class="material-symbols-outlined align-middle me-2" style="font-size:20px">notifications</span>Notificaciones
+      </h5>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-secondary" onclick="marcarTodasLeidasNotif()">Marcar todas</button>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+      </div>
+    </div>
+    <div class="offcanvas-body p-0" id="listaNotificaciones">
+      <div class="text-center py-4 text-muted">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Seleccionar usuario para nueva conversación ── -->
+  <div class="modal fade" id="modalNuevaConv" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h6 class="modal-title fw-bold">
+            <span class="material-symbols-outlined icon-sm align-middle me-1">person_add</span>Nueva conversación
+          </h6>
+          <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-2">
+          <div id="listaUsuariosConv" class="d-flex flex-column gap-2">
+            <div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/vendedor_dashboard.js"></script>
+</body>
+</html>

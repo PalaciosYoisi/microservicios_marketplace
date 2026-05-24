@@ -1,0 +1,24 @@
+{
+  "name": "emprendemarket-microservicios",
+  "version": "1.0.0",
+  "description": "EmprendeMarket - Arquitectura de Microservicios con Node.js",
+  "scripts": {
+    "db:init": "node db-init.js",
+    "install:all": "cd gateway && npm install && cd ../auth-service && npm install && cd ../productos-service && npm install && cd ../pedidos-service && npm install && cd ../notificaciones-service && npm install && cd ../reportes-service && npm install && cd ../frontend-service && npm install",
+    "start:all": "concurrently --kill-others-on-fail --prefix-colors \"bgBlue,bgGreen,bgYellow,bgRed,bgMagenta,bgWhite,bgCyan\" --names \"GATEWAY,AUTH,PRODUCTOS,PEDIDOS,NOTIF,REPORTES,FRONTEND\" \"cd gateway && node src/index.js\" \"cd auth-service && node src/index.js\" \"cd productos-service && node src/index.js\" \"cd pedidos-service && node src/index.js\" \"cd notificaciones-service && node src/index.js\" \"cd reportes-service && node src/index.js\" \"cd frontend-service && node src/index.js\"",
+    "start:gateway": "cd gateway && npm start",
+    "start:auth": "cd auth-service && npm start",
+    "start:productos": "cd productos-service && npm start",
+    "start:pedidos": "cd pedidos-service && npm start",
+    "start:notificaciones": "cd notificaciones-service && npm start",
+    "start:reportes": "cd reportes-service && npm start",
+    "start:frontend": "cd frontend-service && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "mongodb": "^6.7.0"
+  }
+}

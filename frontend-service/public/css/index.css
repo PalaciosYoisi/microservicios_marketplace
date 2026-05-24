@@ -1,0 +1,387 @@
+/* 
+ * ESTILOS ESPECÍFICOS SOLO PARA LA PÁGINA INDEX
+ * Usa las clases existentes del proyecto para mantener consistencia
+ * Solo añade estilos específicos que no existen en los otros archivos CSS
+ */
+
+/* ========================================
+   HERO SECTION ESPECÍFICO PARA INDEX
+   ======================================== */
+
+/* Fondo con gradiente sutil para el hero */
+.index-hero-bg {
+    background: linear-gradient(135deg, #FAFAF9 0%, #FFF7ED 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.index-hero-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23D97706" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%2310B981" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+/* Título principal con efecto de subrayado */
+.index-hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+}
+
+.index-hero-highlight {
+    color: var(--primary);
+    position: relative;
+}
+
+.index-hero-highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 2px;
+}
+
+/* Subtítulo del hero */
+.index-hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    max-width: 600px;
+}
+
+/* ========================================
+   TARJETAS DE PROBLEMAS ESPECÍFICAS
+   ======================================== */
+
+/* Tarjetas de problemas con borde de color */
+.index-problem-card {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--neutral);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    min-height: 400px;
+}
+
+.index-problem-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--primary), var(--accent));
+}
+
+.index-problem-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Iconos de problemas con gradiente */
+.index-problem-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* Estilos para iconos SVG en las tarjetas de problemas */
+.index-problem-icon img {
+    filter: brightness(0) invert(1);
+    transition: all 0.3s ease;
+}
+
+/* Listas dentro de las tarjetas de problemas */
+.index-problem-card ul {
+    text-align: left;
+}
+
+.index-problem-card ul li {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* ========================================
+   SECCIÓN DE SOLUCIÓN CON GRADIENTE
+   ======================================== */
+
+/* Fondo degradado para la sección de solución */
+.index-solution-bg {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.index-solution-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+    opacity: 0.3;
+}
+
+/* Tarjeta de solución con glassmorphism */
+.index-solution-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2.5rem;
+    transition: all 0.3s ease;
+}
+
+.index-solution-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-5px);
+}
+
+/* Lista de características */
+.index-feature-list {
+    list-style: none;
+    padding: 0;
+}
+
+.index-feature-list li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    color: white;
+    font-size: 1.1rem;
+}
+
+.index-feature-list li i {
+    color: var(--accent-light);
+    margin-right: 1rem;
+    margin-top: 0.2rem;
+    font-size: 1.2rem;
+}
+
+/* ========================================
+   TARJETAS DE BENEFICIOS ESPECÍFICAS
+   ======================================== */
+
+/* Tarjetas de beneficios con borde superior */
+.index-benefit-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--neutral);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    min-height: 450px;
+}
+
+.index-benefit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+}
+
+.index-benefit-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+/* Iconos de beneficios con gradiente */
+.index-benefit-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 2rem;
+    transition: all 0.3s ease;
+}
+
+/* Estilos para iconos SVG en las tarjetas de beneficios */
+.index-benefit-icon img {
+    filter: brightness(0) invert(1);
+    transition: all 0.3s ease;
+}
+
+.index-benefit-card:hover .index-benefit-icon {
+    transform: scale(1.1);
+}
+
+/* Listas dentro de las tarjetas de beneficios */
+.index-benefit-card ul {
+    text-align: left;
+}
+
+.index-benefit-card ul li {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* ========================================
+   CTA SECTION ESPECÍFICO
+   ======================================== */
+
+/* Fondo degradado para CTA */
+.index-cta-bg {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.index-cta-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="waves" width="100" height="20" patternUnits="userSpaceOnUse"><path d="M0,10 Q25,0 50,10 T100,10 V20 H0 Z" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23waves)"/></svg>');
+    opacity: 0.3;
+}
+
+/* Botón CTA personalizado */
+.index-cta-button {
+    background: white;
+    color: var(--primary);
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.index-cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    color: var(--primary-dark);
+}
+
+/* ========================================
+   FOOTER ESPECÍFICO PARA INDEX
+   ======================================== */
+
+/* Logo del footer */
+.index-footer-logo {
+    width: 50px;
+    height: 50px;
+    background: var(--primary);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* Enlaces del footer */
+.index-footer-links {
+    list-style: none;
+    padding: 0;
+}
+
+.index-footer-links li {
+    margin-bottom: 0.5rem;
+}
+
+.index-footer-links a {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.index-footer-links a:hover {
+    color: white;
+}
+
+/* Items de contacto */
+.index-contact-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    color: var(--text-light);
+}
+
+.index-contact-item i {
+    color: var(--primary);
+    margin-right: 0.75rem;
+    width: 20px;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 768px) {
+    .index-hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .index-hero-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .index-problem-card,
+    .index-benefit-card {
+        padding: 1.5rem;
+    }
+    
+    .index-solution-card {
+        padding: 2rem;
+    }
+    
+    .index-benefit-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .index-hero-title {
+        font-size: 2rem;
+    }
+    
+    .index-problem-card,
+    .index-benefit-card {
+        padding: 1.25rem;
+    }
+    
+    .index-solution-card {
+        padding: 1.5rem;
+    }
+}

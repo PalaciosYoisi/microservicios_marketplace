@@ -1,0 +1,94 @@
+/* Estilos para el dashboard del comprador */
+
+.pedido-card {
+  border: 1px solid var(--neutral, #E5E7EB);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: box-shadow 0.2s;
+}
+
+.pedido-card:hover {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.pedido-timeline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  position: relative;
+}
+
+.pedido-timeline::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--neutral, #E5E7EB);
+  z-index: 0;
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  z-index: 1;
+  background: white;
+  padding: 0 0.5rem;
+}
+
+.timeline-step .step-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--neutral, #E5E7EB);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9CA3AF;
+}
+
+.timeline-step.activo .step-icon {
+  background: var(--primary, #D97706);
+  color: white;
+}
+
+.timeline-step.completado .step-icon {
+  background: var(--success, #10B981);
+  color: white;
+}
+
+.timeline-step .step-label {
+  font-size: 0.7rem;
+  color: var(--text-light, #6B7280);
+  text-align: center;
+}
+
+.direccion-card,
+.metodo-pago-card-item {
+  border: 1px solid var(--neutral, #E5E7EB);
+  border-radius: 10px;
+  padding: 1rem;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.direccion-card:hover,
+.metodo-pago-card-item:hover {
+  border-color: var(--primary, #D97706);
+}
+
+.badge-principal {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: var(--primary, #D97706);
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+}

@@ -1,0 +1,288 @@
+/* ========================================
+   ESTILOS ESPECÍFICOS PARA LOGIN/REGISTRO
+   ======================================== */
+
+/* Animaciones personalizadas */
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes slideUp {
+    0% { 
+        transform: translateY(30px); 
+        opacity: 0; 
+    }
+    100% { 
+        transform: translateY(0); 
+        opacity: 1; 
+    }
+}
+
+@keyframes slideDown {
+    0% { 
+        transform: translateY(-30px); 
+        opacity: 0; 
+    }
+    100% { 
+        transform: translateY(0); 
+        opacity: 1; 
+    }
+}
+
+@keyframes cardFloat {
+    0%, 100% { 
+        transform: translateY(0); 
+    }
+    50% { 
+        transform: translateY(-8px); 
+    }
+}
+
+@keyframes slideIn {
+    0% { 
+        width: 0; 
+    }
+    100% { 
+        width: 100%; 
+    }
+}
+
+/* Clases de animación */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.animate-slide-down {
+    animation: slideDown 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.animate-card-float {
+    animation: cardFloat 4s ease-in-out infinite;
+}
+
+/* Contenedor de autenticación con perspectiva 3D */
+.auth-container {
+    perspective: 1000px;
+    position: relative;
+}
+
+.auth-form {
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Estados de los formularios */
+.form-hidden {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    transform: rotateY(90deg) scale(0.8);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.form-visible {
+    position: relative;
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
+    pointer-events: all;
+    z-index: 2;
+}
+
+/* Tabs activos */
+.tab-active {
+    position: relative;
+    color: #D97706 !important;
+    background: transparent;
+}
+
+.tab-active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #D97706;
+    border-radius: 3px 3px 0 0;
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Estilos para los tabs */
+.nav-tabs .nav-link {
+    border: none;
+    border-radius: 0;
+    color: #6B7280;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    background: transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    border: none;
+    color: #D97706;
+    background: transparent;
+}
+
+.nav-tabs .nav-link.active {
+    border: none;
+    color: #D97706;
+    background: transparent;
+}
+
+/* Opciones de tipo de cuenta */
+.account-type-option {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 1rem;
+    height: 100%;
+}
+
+.account-type-option:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-color: #D97706;
+}
+
+.account-type-option.selected {
+    border-color: #D97706;
+    background-color: rgba(217, 119, 6, 0.05);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Efectos de hover en las tarjetas de tipo de cuenta */
+.account-type-option:hover:not(.selected) {
+    border-color: #D97706;
+    background-color: rgba(217, 119, 6, 0.02);
+}
+
+/* Estilos para los tabs de Bootstrap */
+.nav-tabs .nav-link {
+    border: none;
+    border-radius: 0;
+    color: var(--text-light);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-tabs .nav-link:hover {
+    border: none;
+    color: var(--primary);
+}
+
+.nav-tabs .nav-link.active {
+    border: none;
+    color: var(--primary);
+    background: transparent;
+}
+
+.nav-tabs .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 3px 3px 0 0;
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Efectos de transición suave para los formularios */
+.tab-pane {
+    transition: all 0.3s ease;
+}
+
+/* Mejoras en los inputs */
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(217, 119, 6, 0.25);
+}
+
+/* Botones con efectos mejorados */
+.btn-primary {
+    background: #D97706;
+    border-color: #D97706;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #B45309;
+    border-color: #B45309;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(217, 119, 6, 0.3);
+}
+
+.btn-accent {
+    background: #10B981;
+    border-color: #10B981;
+    transition: all 0.3s ease;
+}
+
+.btn-accent:hover {
+    background: #059669;
+    border-color: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* Efectos de hover en enlaces */
+.btn-link:hover {
+    transform: translateY(-1px);
+}
+
+/* Efecto hover para el enlace del logo */
+a.text-decoration-none:hover h1 {
+    color: #D97706 !important;
+    transition: color 0.3s ease;
+}
+
+/* Animación escalonada para elementos del formulario */
+.register-element {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.register-element.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .auth-container {
+        perspective: none;
+    }
+    
+    .auth-form {
+        transform-style: flat;
+    }
+    
+    .form-hidden {
+        position: static;
+        opacity: 0;
+        transform: none;
+        display: none;
+    }
+    
+    .form-visible {
+        position: static;
+        opacity: 1;
+        transform: none;
+        display: block;
+    }
+}

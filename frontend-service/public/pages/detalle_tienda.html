@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda | EmprendeMarket</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link href="/css/marketplace.css" rel="stylesheet">
+  <link href="/css/estilos.css" rel="stylesheet">
+  <link href="/css/detalle_tienda.css" rel="stylesheet">
+</head>
+<body class="bg-background">
+
+  <!-- Navbar -->
+  <header class="bg-white shadow-soft sticky-top">
+    <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-light py-2">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+          <span class="material-symbols-outlined text-primary me-2">storefront</span>
+          <span class="fw-bold">EmprendeMarket</span>
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+          <a href="/marketplace" class="btn btn-outline-primary btn-sm">
+            <span class="material-symbols-outlined icon-sm me-1">arrow_back</span>Volver al Marketplace
+          </a>
+          <a href="/carrito" class="nav-link position-relative">
+            <span class="material-symbols-outlined">shopping_cart</span>
+          </a>
+          <div id="nav-user"></div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div id="tienda-contenido" class="container py-5">
+
+    <!-- Cabecera de la tienda -->
+    <div class="tienda-header mb-4">
+      <div class="row align-items-center">
+        <div class="col-md-2 text-center mb-3 mb-md-0">
+          <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center" style="width:80px;height:80px">
+            <span class="material-symbols-outlined text-white" style="font-size:40px">store</span>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <h1 id="tienda-nombre" class="merriweather h2 mb-1">Cargando...</h1>
+          <p id="tienda-descripcion" class="text-muted mb-2"></p>
+          <span class="badge bg-warning text-dark" id="tienda-categoria">General</span>
+        </div>
+        <div class="col-md-3">
+          <div class="row g-2 text-center">
+            <div class="col-6">
+              <div class="stat-box">
+                <span class="stat-number" id="stat-productos">0</span>
+                <span class="stat-label">Productos</span>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="stat-box">
+                <span class="stat-number" id="stat-fecha">—</span>
+                <span class="stat-label">Desde</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4 g-3">
+        <div class="col-md-6" id="fila-horario">
+          <div class="info-item">
+            <span class="material-symbols-outlined">schedule</span>
+            <span id="tienda-horario" class="small"></span>
+          </div>
+        </div>
+        <div class="col-md-6" id="fila-telefono">
+          <div class="info-item">
+            <span class="material-symbols-outlined">call</span>
+            <span id="tienda-telefono" class="small"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Productos -->
+    <div class="section-title">
+      <span class="material-symbols-outlined">inventory_2</span>
+      Productos de la tienda
+    </div>
+
+    <div class="row g-4" id="productos-grid">
+      <div class="col-12 text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted">Cargando productos...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/detalle_tienda.js"></script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+/* 
+    ESTILOS PRINCIPALES DEL MARKETPLACE EMPRENDEMARKET
+    Archivo CSS separado con estilos específicos del marketplace
+    Basado en el diseño original pero optimizado con Bootstrap
+*/
+
+/* ========================================
+   VARIABLES CSS PERSONALIZADAS
+   ======================================== */
+:root {
+    --primary: #D97706;
+    --primary-light: #FBBF24;
+    --primary-dark: #B45309;
+    --secondary: #FFF7ED;
+    --secondary-light: #FEF3C7;
+    --background: #FAFAF9;
+    --text: #1C1917;
+    --text-light: #4B5563;
+    --accent: #10B981;
+    --accent-light: #34D399;
+    --accent-dark: #059669;
+    --dark: #1C1917;
+    --light: #FAFAF9;
+    --neutral: #E5E7EB;
+    --error: #EF4444;
+    --error-light: #FCA5A5;
+    --success: #10B981;
+    --success-light: #D1FAE5;
+    --warning: #F59E0B;
+    --warning-light: #FEF3C7;
+}
+
+/* ========================================
+   CONFIGURACIÓN BASE
+   ======================================== */
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Merriweather', serif;
+    font-weight: 700;
+    color: var(--text);
+}
+
+/* ========================================
+   CLASES DE UTILIDAD PERSONALIZADAS
+   ======================================== */
+.bg-primary { background-color: var(--primary) !important; }
+.text-primary { color: var(--primary) !important; }
+.bg-secondary { background-color: var(--secondary) !important; }
+.text-secondary { color: var(--secondary) !important; }
+.bg-accent { background-color: var(--accent) !important; }
+.text-accent { color: var(--accent) !important; }
+.bg-dark { background-color: var(--dark) !important; }
+.text-dark { color: var(--dark) !important; }
+.bg-light { background-color: var(--light) !important; }
+.text-light { color: var(--light) !important; }
+.bg-neutral { background-color: var(--neutral) !important; }
+.text-neutral { color: var(--neutral) !important; }
+.bg-error { background-color: var(--error) !important; }
+.text-error { color: var(--error) !important; }
+.bg-success { background-color: var(--success) !important; }
+.text-success { color: var(--success) !important; }
+.bg-warning { background-color: var(--warning) !important; }
+.text-warning { color: var(--warning) !important; }
+
+/* ========================================
+   SOMBRAS PERSONALIZADAS
+   ======================================== */
+.shadow-soft { box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important; }
+.shadow-medium { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important; }
+.shadow-strong { box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important; }
+
+/* ========================================
+   EFECTOS DE HOVER MEJORADOS
+   ======================================== */
+.card-hover {
+    transition: all 0.3s ease-in-out;
+}
+
+.card-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+/* ========================================
+   ANIMACIONES PERSONALIZADAS
+   ======================================== */
+@keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes slideUp {
+    0% { transform: translateY(30px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+    0% { transform: translateY(-30px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideIn {
+    0% { width: 0; }
+    100% { width: 100%; }
+}
+
+@keyframes cardFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+.animate-fade-in { animation: fadeIn 0.5s ease-in; }
+.animate-slide-up { animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+.animate-slide-down { animation: slideDown 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+.animate-slide-in { animation: slideIn 0.3s ease-out; }
+.animate-card-float { animation: cardFloat 4s ease-in-out infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+
+/* ========================================
+   ESTILOS PARA ELEMENTOS DECORATIVOS
+   ======================================== */
+.decorative-circle {
+    border-radius: 50%;
+    filter: blur(40px);
+    mix-blend-mode: multiply;
+    opacity: 0.2;
+}
+
+.decorative-circle:nth-child(1) {
+    background-color: var(--primary);
+    animation: float 3s ease-in-out infinite;
+}
+
+.decorative-circle:nth-child(2) {
+    background-color: var(--accent);
+    animation: float 3s ease-in-out infinite 2s;
+}
+
+.decorative-circle:nth-child(3) {
+    background-color: var(--primary);
+    animation: float 3s ease-in-out infinite 4s;
+}
+
+/* ========================================
+   ESTILOS ESPECÍFICOS DEL DASHBOARD
+   ======================================== */
+.dashboard-sidebar {
+    min-height: 100vh;
+    background-color: white;
+    border-right: 1px solid var(--neutral);
+}
+
+.dashboard-main {
+    background-color: var(--background);
+    min-height: 100vh;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid var(--neutral);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.order-item {
+    background: var(--secondary);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.order-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-card {
+    background: var(--secondary);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.recommendation-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 768px) {
+    .dashboard-sidebar {
+        min-height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--neutral);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .order-item:hover {
+        transform: translateY(-1px);
+    }
+    
+    .recommendation-card:hover {
+        transform: translateY(-2px);
+    }
+}

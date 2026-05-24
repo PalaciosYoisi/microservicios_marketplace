@@ -1,0 +1,67 @@
+/* Layout de sidebar para dashboards (vendedor, comprador, admin) */
+
+body.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+#sidebar {
+  width: 280px;
+  min-width: 280px;
+  transition: width 0.3s ease;
+}
+
+#sidebar.collapsed {
+  width: 70px;
+  min-width: 70px;
+}
+
+#sidebar.collapsed .sidebar-text { display: none; }
+#sidebar.collapsed .sidebar-brand span:last-child { display: none; }
+
+#main-content {
+  flex: 1;
+  overflow-x: hidden;
+}
+
+/* Nav links del sidebar */
+.dashboard-sidebar .nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  color: var(--text-light, #4B5563);
+  margin-bottom: 4px;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none;
+}
+
+.dashboard-sidebar .nav-link:hover {
+  background: var(--secondary, #FFF7ED);
+  color: var(--primary, #D97706);
+}
+
+.dashboard-sidebar .nav-link.active {
+  background: var(--secondary, #FFF7ED);
+  color: var(--primary, #D97706);
+}
+
+/* Ícono de fondo en stat-cards */
+.dashboard-icon-bg {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--secondary, #FFF7ED);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary, #D97706);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  body.dashboard-layout { flex-direction: column; }
+  #sidebar { width: 100%; min-width: 100%; }
+  #sidebar.collapsed { width: 100%; }
+}

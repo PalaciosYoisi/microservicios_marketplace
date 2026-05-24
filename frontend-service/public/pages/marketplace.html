@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketplace | EmprendeMarket</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link href="/css/marketplace.css" rel="stylesheet">
+  <link href="/css/estilos.css" rel="stylesheet">
+
+</head>
+<body class="bg-background">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg bg-white shadow-soft sticky-top">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <span class="material-symbols-outlined text-primary me-2" style="font-size:28px">storefront</span>
+        <span class="fw-bold text-dark">emprendemarket</span>
+      </a>
+      <div class="d-flex align-items-center gap-2 ms-auto">
+        <div class="input-group" style="max-width:300px">
+          <input type="text" id="searchInput" class="form-control" placeholder="Buscar productos...">
+          <button class="btn btn-primary" onclick="buscar()">
+            <span class="material-symbols-outlined icon-sm">search</span>
+          </button>
+        </div>
+        <a href="/carrito" class="btn btn-outline-primary position-relative">
+          <span class="material-symbols-outlined icon-sm">shopping_cart</span>
+          <span id="carritoCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span>
+        </a>
+        <div id="navUsuario"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <div class="row">
+      <!-- Sidebar filtros -->
+      <div class="col-lg-3 mb-4">
+        <div class="card shadow-soft">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3">
+              <span class="material-symbols-outlined icon-sm me-2">filter_list</span>Filtros
+            </h6>
+            <div class="mb-3">
+              <label class="form-label fw-medium small">Categoría</label>
+              <select id="filtroCategoria" class="form-select form-select-sm" onchange="filtrar()">
+                <option value="">Todas las categorías</option>
+                <option value="Ropa">Ropa</option>
+                <option value="Zapatos / Calzado">Zapatos / Calzado</option>
+                <option value="Ropa Infantil">Ropa Infantil</option>
+                <option value="Bolsos y Accesorios">Bolsos y Accesorios</option>
+                <option value="Deportes">Deportes</option>
+                <option value="Alimentos">Alimentos</option>
+                <option value="Artesanías">Artesanías</option>
+                <option value="Tecnología">Tecnología</option>
+                <option value="Hogar">Hogar</option>
+                <option value="Belleza">Belleza</option>
+                <option value="Joyería">Joyería</option>
+                <option value="General">General</option>
+              </select>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm w-100" onclick="limpiarFiltros()">
+              <span class="material-symbols-outlined icon-sm me-1">clear</span>Limpiar filtros
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Productos -->
+      <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="fw-bold mb-0">Productos disponibles</h5>
+          <span id="totalProductos" class="text-muted small"></span>
+        </div>
+
+        <div id="loadingProductos" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2 text-muted">Cargando productos...</p>
+        </div>
+
+        <div id="gridProductos" class="row g-4 d-none"></div>
+
+        <div id="sinProductos" class="text-center py-5 d-none">
+          <span class="material-symbols-outlined icon-xl text-muted">inventory_2</span>
+          <p class="text-muted mt-2">No se encontraron productos</p>
+        </div>
+
+        <!-- Paginación -->
+        <div id="paginacion" class="d-flex justify-content-center mt-4 d-none">
+          <nav>
+            <ul class="pagination" id="paginacionItems"></ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/marketplace.js"></script>
+</body>
+</html>
