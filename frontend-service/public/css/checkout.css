@@ -36,3 +36,126 @@
   border-color: var(--primary, #D97706);
   background: var(--secondary, #FFF7ED);
 }
+
+/* ── Tarjetas de método de pago (selector visual) ── */
+.metodo-card {
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: border-color .18s, background .18s, box-shadow .18s;
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+}
+.metodo-card:hover { border-color: var(--primary); background: #fff7ed; }
+.metodo-card.selected {
+  border-color: var(--primary);
+  background: #fff7ed;
+  box-shadow: 0 0 0 3px rgba(217,119,6,.15);
+}
+.metodo-card .metodo-logo {
+  width: 52px; height: 34px;
+  object-fit: contain; flex-shrink: 0;
+}
+.metodo-card .metodo-check {
+  margin-left: auto;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, border-color .15s;
+  flex-shrink: 0;
+}
+.metodo-card.selected .metodo-check {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+/* ── Indicador de pasos ── */
+.step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 2rem; }
+.step-dot {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: #e5e7eb; color: #9ca3af;
+  font-weight: 700; font-size: .85rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background .2s, color .2s;
+}
+.step-dot.active { background: var(--primary); color: #fff; }
+.step-dot.done   { background: #16a34a; color: #fff; }
+.step-line { flex: 1; height: 2px; background: #e5e7eb; margin: 0 4px; }
+.step-line.done { background: #16a34a; }
+
+/* ── Modal Wompi ── */
+#wompiModal .modal-content { border-radius: 16px; overflow: hidden; border: none; }
+#wompiModal .wompi-header {
+  background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+  color: #fff; padding: 1.5rem 1.5rem 1rem;
+}
+#wompiModal .wompi-header img { height: 32px; filter: brightness(0) invert(1); }
+#wompiModal .card-field {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: .65rem .85rem;
+  font-size: .95rem;
+  width: 100%;
+  font-family: 'Open Sans', sans-serif;
+  transition: border-color .15s;
+  outline: none;
+}
+#wompiModal .card-field:focus {
+  border-color: #00b4d8;
+  box-shadow: 0 0 0 3px rgba(0,180,216,.15);
+}
+.card-brand-indicator {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  font-size: .75rem; font-weight: 700; color: #64748b; pointer-events: none;
+}
+
+/* ── Modal Nequi ── */
+#nequiModal .modal-content { border-radius: 16px; overflow: hidden; border: none; }
+#nequiModal .nequi-header {
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+  color: #fff; padding: 1.5rem 1.5rem 1rem;
+}
+
+/* ── Modal PSE ── */
+#pseModal .modal-content { border-radius: 16px; overflow: hidden; border: none; }
+#pseModal .pse-header {
+  background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+  color: #fff; padding: 1.5rem 1.5rem 1rem;
+}
+
+/* ── Overlay de procesamiento ── */
+.paying-overlay {
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,.92);
+  border-radius: 16px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: .75rem; z-index: 10;
+}
+
+/* ── Vista previa de tarjeta ── */
+.fake-card {
+  background: linear-gradient(135deg, #1e3a5f 0%, #0077b6 100%);
+  border-radius: 14px; padding: 1.25rem 1.5rem;
+  color: #fff; font-family: 'Courier New', monospace;
+  position: relative; overflow: hidden; user-select: none;
+}
+.fake-card::before {
+  content: '';
+  position: absolute; top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.07);
+}
+
+/* ── Resumen sticky ── */
+@media (min-width: 992px) {
+  #resumen-sticky { position: sticky; top: 1rem; }
+}

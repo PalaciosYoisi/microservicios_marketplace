@@ -10,40 +10,6 @@
   <link href="/css/marketplace.css" rel="stylesheet">
   <link href="/css/estilos.css" rel="stylesheet">
   <link href="/css/dashboard.css" rel="stylesheet">
-  <style>
-    .drop-zone {
-      border: 2px dashed var(--primary);
-      border-radius: 10px;
-      padding: 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: background .2s;
-    }
-    .drop-zone.dragover, .drop-zone:hover { background: #fff7ed; }
-    .img-preview-box { max-height: 180px; overflow: hidden; border-radius: 8px; }
-    .img-preview-box img { width: 100%; object-fit: cover; max-height: 180px; }
-    .tab-img-btn { border: none; background: none; padding: .4rem 1rem; font-size: .9rem;
-                   border-bottom: 2px solid transparent; color: #666; cursor: pointer; }
-    .tab-img-btn.active { border-bottom-color: var(--primary); color: var(--primary); font-weight: 600; }
-    .foto-perfil-wrap { position: relative; display: inline-block; }
-    .foto-perfil-wrap label { position: absolute; bottom: 0; right: 0; background: var(--primary);
-      color: #fff; border-radius: 50%; width: 28px; height: 28px;
-      display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
-    #fotoSidebar { width: 60px; height: 60px; object-fit: cover; border-radius: 50%; }
-    .talla-chip {
-      cursor: pointer; font-size: .82rem; padding: .35em .75em;
-      border-radius: 20px; user-select: none; transition: background .15s, transform .1s;
-      border: 2px solid transparent;
-    }
-    .talla-chip:hover { transform: scale(1.08); }
-    .talla-chip.selected { background: var(--primary) !important; color: #fff !important; border-color: var(--primary); }
-    .talla-chip:not(.selected) { background: #e9ecef; color: #495057; border-color: #dee2e6; }
-    /* ── Mensajes ── */
-    .conv-item:hover { background: #f8f9fa; }
-    .conv-item.activa { background: #fff7ed; border-left: 3px solid var(--primary); }
-    #mensajesPanel { scroll-behavior: smooth; }
-    .notif-item:hover { background: #f8f9fa; }
-  </style>
 </head>
 <body class="bg-background dashboard-layout">
 
