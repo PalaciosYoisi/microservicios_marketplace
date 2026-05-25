@@ -118,12 +118,55 @@ async function verProducto(req, res) {
 
 /**
  * GET /tiendas
+ * Lista tiendas activas con paginación, conteo de productos e info del propietario.
  */
 async function listarTiendas(req, res) {
   try {
-    const tiendas = await Tienda.find({ estado: { $in: ['activa', 'Activa', 'activo'] } }).sort({ fecha_creacion: -1 });
-    return res.json({ success: true, tiendas });
+    const { categoria, buscar, pagina = 1, limite = 9 } = req.query;
+    const filtro = { estado: { $in: ['activa', 'Activa', 'activo'] } };
+    if (categoria) filtro.categoria = { $regex: categoria, $options: 'i' };
+    if (buscar)    filtro.nombre_tienda = { $regex: buscar, $options: 'i' };
+
+    const skip = (parseInt(pagina) - 1) * parseInt(limite);
+    const [tiendas, total] = await Promise.all([
+      Tienda.find(filtro).skip(skip).limit(parseInt(limite)).sort({ fecha_creacion: -1 }),
+      Tienda.countDocuments(filtro),
+    ]);
+
+    // Conteo de productos activos por tienda
+    const tiendaIds = tiendas.map(t => t.id_tienda);
+    const conteoProd = await Producto.aggregate([
+      { $match: { id_tienda: { $in: tiendaIds }, estado: { $in: ['activo', 'Activo', 'disponible'] } } },
+      { $group: { _id: '$id_tienda', count: { $sum: 1 } } },
+    ]);
+    const conteoMap = Object.fromEntries(conteoProd.map(c => [c._id, c.count]));
+
+    // Info del propietario
+    const propietarioIds = [...new Set(tiendas.map(t => t.id_propietario))];
+    const usuarios = await fetchUsuariosBulk(propietarioIds);
+    const usuariosMap = Object.fromEntries(usuarios.map(u => [u.id_usuario, u]));
+
+    const tiendasEnriquecidas = tiendas.map(t => {
+      const u = usuariosMap[t.id_propietario];
+      return {
+        ...t.toObject(),
+        total_productos: conteoMap[t.id_tienda] || 0,
+        propietario: u ? { nombre: u.nombre, apellido: u.apellido, foto_perfil: u.foto_perfil || null } : null,
+      };
+    });
+
+    return res.json({
+      success: true,
+      tiendas: tiendasEnriquecidas,
+      paginacion: {
+        total,
+        pagina:  parseInt(pagina),
+        limite:  parseInt(limite),
+        paginas: Math.ceil(total / parseInt(limite)),
+      },
+    });
   } catch (err) {
+    console.error('[productos-service] listarTiendas:', err);
     return res.status(500).json({ success: false, message: 'Error al obtener tiendas.' });
   }
 }
@@ -136,8 +179,15 @@ async function verTienda(req, res) {
     const tienda = await Tienda.findOne({ id_tienda: parseInt(req.params.id) });
     if (!tienda) return res.status(404).json({ success: false, message: 'Tienda no encontrada.' });
 
-    const productos = await Producto.find({ id_tienda: tienda.id_tienda, estado: { $in: ['activo', 'Activo'] } });
-    return res.json({ success: true, tienda: { ...tienda.toObject(), productos } });
+    const [productos, usuarios] = await Promise.all([
+      Producto.find({ id_tienda: tienda.id_tienda, estado: { $in: ['activo', 'Activo', 'disponible'] } }),
+      fetchUsuariosBulk([tienda.id_propietario]),
+    ]);
+
+    const u = usuarios.find(x => x.id_usuario === tienda.id_propietario) || null;
+    const propietario = u ? { nombre: u.nombre, apellido: u.apellido, foto_perfil: u.foto_perfil || null } : null;
+
+    return res.json({ success: true, tienda: { ...tienda.toObject(), productos, propietario } });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Error al obtener la tienda.' });
   }

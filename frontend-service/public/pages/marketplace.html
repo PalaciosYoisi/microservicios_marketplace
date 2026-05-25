@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -9,7 +9,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
   <link href="/css/marketplace.css" rel="stylesheet">
   <link href="/css/estilos.css" rel="stylesheet">
-
 </head>
 <body class="bg-background">
 
@@ -22,7 +21,7 @@
       </a>
       <div class="d-flex align-items-center gap-2 ms-auto">
         <div class="input-group" style="max-width:300px">
-          <input type="text" id="searchInput" class="form-control" placeholder="Buscar productos...">
+          <input type="text" id="searchInput" class="form-control" placeholder="Buscar...">
           <button class="btn btn-primary" onclick="buscar()">
             <span class="material-symbols-outlined icon-sm">search</span>
           </button>
@@ -38,6 +37,7 @@
 
   <div class="container py-4">
     <div class="row">
+
       <!-- Sidebar filtros -->
       <div class="col-lg-3 mb-4">
         <div class="card shadow-soft">
@@ -66,35 +66,85 @@
             <button class="btn btn-outline-secondary btn-sm w-100" onclick="limpiarFiltros()">
               <span class="material-symbols-outlined icon-sm me-1">clear</span>Limpiar filtros
             </button>
+
+            <!-- Acceso rápido a tiendas -->
+            <hr class="my-3">
+            <p class="small text-muted mb-2 fw-semibold">Explorar</p>
+            <button class="btn btn-outline-primary btn-sm w-100 mb-2" onclick="cambiarTab('tiendas')">
+              <span class="material-symbols-outlined icon-sm me-1">storefront</span>Ver todas las tiendas
+            </button>
+            <button class="btn btn-outline-secondary btn-sm w-100" onclick="cambiarTab('productos')">
+              <span class="material-symbols-outlined icon-sm me-1">inventory_2</span>Ver productos
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Productos -->
+      <!-- Contenido principal -->
       <div class="col-lg-9">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h5 class="fw-bold mb-0">Productos disponibles</h5>
-          <span id="totalProductos" class="text-muted small"></span>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-4" id="marketplaceTabs">
+          <li class="nav-item">
+            <button class="nav-link active" id="tab-productos" onclick="cambiarTab('productos')">
+              <span class="material-symbols-outlined icon-sm me-1">inventory_2</span>Productos
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="tab-tiendas" onclick="cambiarTab('tiendas')">
+              <span class="material-symbols-outlined icon-sm me-1">storefront</span>Tiendas
+            </button>
+          </li>
+        </ul>
+
+        <!-- ── SECCIÓN PRODUCTOS ─────────────────────────────────────── -->
+        <div id="seccion-productos">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0">Productos disponibles</h5>
+            <span id="totalProductos" class="text-muted small"></span>
+          </div>
+
+          <div id="loadingProductos" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Cargando productos...</p>
+          </div>
+
+          <div id="gridProductos" class="row g-4 d-none"></div>
+
+          <div id="sinProductos" class="text-center py-5 d-none">
+            <span class="material-symbols-outlined icon-xl text-muted">inventory_2</span>
+            <p class="text-muted mt-2">No se encontraron productos</p>
+          </div>
+
+          <div id="paginacion" class="d-flex justify-content-center mt-4 d-none">
+            <nav><ul class="pagination" id="paginacionItems"></ul></nav>
+          </div>
         </div>
 
-        <div id="loadingProductos" class="text-center py-5">
-          <div class="spinner-border text-primary" role="status"></div>
-          <p class="mt-2 text-muted">Cargando productos...</p>
+        <!-- ── SECCIÓN TIENDAS ───────────────────────────────────────── -->
+        <div id="seccion-tiendas" class="d-none">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0">Tiendas activas</h5>
+            <span id="totalTiendas" class="text-muted small"></span>
+          </div>
+
+          <div id="loadingTiendas" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Cargando tiendas...</p>
+          </div>
+
+          <div id="gridTiendas" class="row g-4 d-none"></div>
+
+          <div id="sinTiendas" class="text-center py-5 d-none">
+            <span class="material-symbols-outlined icon-xl text-muted">store_mall_directory</span>
+            <p class="text-muted mt-2">No se encontraron tiendas</p>
+          </div>
+
+          <div id="paginacionTiendas" class="d-flex justify-content-center mt-4 d-none">
+            <nav><ul class="pagination" id="paginacionTiendasItems"></ul></nav>
+          </div>
         </div>
 
-        <div id="gridProductos" class="row g-4 d-none"></div>
-
-        <div id="sinProductos" class="text-center py-5 d-none">
-          <span class="material-symbols-outlined icon-xl text-muted">inventory_2</span>
-          <p class="text-muted mt-2">No se encontraron productos</p>
-        </div>
-
-        <!-- Paginación -->
-        <div id="paginacion" class="d-flex justify-content-center mt-4 d-none">
-          <nav>
-            <ul class="pagination" id="paginacionItems"></ul>
-          </nav>
-        </div>
       </div>
     </div>
   </div>
