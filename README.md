@@ -47,7 +47,13 @@ Cliente (navegador)
 │  Frontend Service   │  :3005  ← HTML/CSS/JS estático + uploads
 └─────────────────────┘
 
-Base de datos: MongoDB — emprendemarket_db (una instancia, colecciones por dominio)
+MongoDB — 5 bases de datos independientes (una por servicio)
+│
+├── emprendemarket_auth          ← auth-service
+├── emprendemarket_productos     ← productos-service
+├── emprendemarket_pedidos       ← pedidos-service
+├── emprendemarket_notificaciones← notificaciones-service
+└── emprendemarket_reportes      ← reportes-service
 ```
 
 ---
@@ -185,38 +191,39 @@ Cada servicio tiene su propio `.env`. Ejemplo de configuración:
 ### Auth Service (`auth-service/.env`)
 ```env
 PORT=3001
-MONGO_URI=mongodb://127.0.0.1:27017/emprendemarket_db
+MONGO_URI=mongodb://127.0.0.1:27017/emprendemarket_auth
 JWT_SECRET=emprendemarket_jwt_secret_2024_microservicios
 JWT_EXPIRES_IN=7d
 NODE_ENV=development
+INTERNAL_SERVICE_KEY=emprendemarket_internal_2024
 ```
 
 ### Productos Service (`productos-service/.env`)
 ```env
 PORT=3002
-MONGO_URI=mongodb://127.0.0.1:27017/emprendemarket_db
+MONGO_URI=mongodb://127.0.0.1:27017/emprendemarket_productos
 JWT_SECRET=emprendemarket_jwt_secret_2024_microservicios
 NODE_ENV=development
-NOTIFICACIONES_SERVICE_URL=http://localhost:3004
 AUTH_SERVICE_URL=http://localhost:3001
+NOTIFICACIONES_SERVICE_URL=http://localhost:3004
 INTERNAL_SERVICE_KEY=emprendemarket_internal_2024
 ```
 
 ### Pedidos Service (`pedidos-service/.env`)
 ```env
 PORT=3003
-MONGO_URI=mongodb://127.0.0.1:27017/emprendemarket_db
+MONGO_URI=mongodb://127.0.0.1:27017/emprendemarket_pedidos
 JWT_SECRET=emprendemarket_jwt_secret_2024_microservicios
 NODE_ENV=development
-NOTIFICACIONES_SERVICE_URL=http://localhost:3004
 PRODUCTOS_SERVICE_URL=http://localhost:3002
+NOTIFICACIONES_SERVICE_URL=http://localhost:3004
 INTERNAL_SERVICE_KEY=emprendemarket_internal_2024
 ```
 
 ### Notificaciones Service (`notificaciones-service/.env`)
 ```env
 PORT=3004
-MONGO_URI=mongodb://127.0.0.1:27017/emprendemarket_db
+MONGO_URI=mongodb://127.0.0.1:27017/emprendemarket_notificaciones
 JWT_SECRET=emprendemarket_jwt_secret_2024_microservicios
 NODE_ENV=development
 INTERNAL_SERVICE_KEY=emprendemarket_internal_2024
@@ -225,7 +232,7 @@ INTERNAL_SERVICE_KEY=emprendemarket_internal_2024
 ### Reportes Service (`reportes-service/.env`)
 ```env
 PORT=3006
-MONGO_URI=mongodb://127.0.0.1:27017/emprendemarket_db
+MONGO_URI=mongodb://127.0.0.1:27017/emprendemarket_reportes
 JWT_SECRET=emprendemarket_jwt_secret_2024_microservicios
 NODE_ENV=development
 AUTH_SERVICE_URL=http://localhost:3001
@@ -373,23 +380,46 @@ Los productos soportan tallas con stock individual:
 
 ## Base de datos
 
-MongoDB — base de datos: `emprendemarket_db`
+MongoDB con **5 bases de datos independientes** — una por cada servicio con estado. Cada servicio se conecta únicamente a su propia base de datos; la comunicación entre servicios se hace por HTTP (no comparten BD).
 
-| Colección | Servicio responsable | Descripción |
-|---|---|---|
-| `usuarios` | auth-service | Usuarios registrados (compradores, emprendedores, admin) |
-| `tiendas` | productos-service | Tiendas de emprendedores |
-| `productos` | productos-service | Catálogo (campo `tallas` soporta `[String]` y `[{nombre,stock}]`) |
-| `productos_imagenes` | productos-service | Imágenes adicionales de productos |
-| `favoritos` | productos-service | Favoritos por usuario |
-| `resenas` | productos-service | Reseñas con calificación, comentario y foto opcional |
-| `carrito` | pedidos-service | Ítems del carrito (incluye campo `talla`) |
-| `pedidos` | pedidos-service | Órdenes de compra (detalles embebidos con `talla` e `imagen_url`) |
-| `direcciones` | pedidos-service | Direcciones de envío por usuario |
-| `metodos_pago` | pedidos-service | Métodos de pago (tarjeta enmascarada) |
-| `notificaciones` | notificaciones-service | Notificaciones push del sistema |
-| `mensajes` | notificaciones-service | Mensajes directos entre usuarios |
-| `reportes` | reportes-service | Reportes/PQRS (con `id_destinatario` para vendor targeting) |
+### `emprendemarket_auth` — Auth Service
+
+| Colección | Descripción |
+|---|---|
+| `usuarios` | Usuarios registrados (compradores, emprendedores, admin) |
+
+### `emprendemarket_productos` — Productos Service
+
+| Colección | Descripción |
+|---|---|
+| `tiendas` | Tiendas de emprendedores (con `logo_url`, `estado`: pendiente/activa/suspendida) |
+| `productos` | Catálogo (campo `tallas` soporta `[String]` y `[{nombre,stock}]`) |
+| `productos_imagenes` | Imágenes adicionales de productos |
+| `favoritos` | Favoritos por usuario |
+| `resenas` | Reseñas con calificación (1–5 ★), comentario y foto opcional |
+| `promociones` | Descuentos y promociones por tienda/producto |
+
+### `emprendemarket_pedidos` — Pedidos Service
+
+| Colección | Descripción |
+|---|---|
+| `carrito` | Ítems del carrito (incluye campo `talla`) |
+| `pedidos` | Órdenes de compra (detalles embebidos con `talla` e `imagen_url`) |
+| `direcciones` | Direcciones de envío por usuario |
+| `metodos_pago` | Métodos de pago (tarjeta enmascarada) |
+
+### `emprendemarket_notificaciones` — Notificaciones Service
+
+| Colección | Descripción |
+|---|---|
+| `notificaciones` | Notificaciones push del sistema |
+| `mensajes` | Mensajes directos entre usuarios |
+
+### `emprendemarket_reportes` — Reportes Service
+
+| Colección | Descripción |
+|---|---|
+| `reportes` | Reportes/PQRS (con `id_destinatario` para vendor targeting) |
 
 ### Uploads (archivos subidos)
 
@@ -462,7 +492,7 @@ Los archivos se guardan en `frontend-service/public/uploads/` y se sirven como a
 |---|---|
 | Runtime | Node.js 18+ |
 | Framework backend | Express.js |
-| Base de datos | MongoDB + Mongoose (`strict: false` para esquemas flexibles) |
+| Base de datos | MongoDB + Mongoose — 5 BDs independientes (`strict: false` para esquemas flexibles) |
 | Autenticación | JWT (jsonwebtoken) + bcryptjs |
 | Proxy / Gateway | http-proxy-middleware v3 |
 | Upload de archivos | multer (imágenes de productos, reseñas y perfiles) |
