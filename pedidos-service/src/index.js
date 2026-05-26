@@ -30,7 +30,7 @@ app.listen(PORT, () =>
 function conectarMongo() {
   mongoose
     .connect(process.env.MONGO_URI, {
-      directConnection: true,
+      
       serverSelectionTimeoutMS: 5000,
     })
     .then(() => console.log('[pedidos-service] Conectado a MongoDB'))
