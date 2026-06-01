@@ -4,7 +4,27 @@ if (usuario) {
 }
 
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('collapsed');
+  const sidebar = document.getElementById('sidebar');
+  if (window.innerWidth <= 768) {
+    sidebar.classList.toggle('mobile-open');
+    let backdrop = document.getElementById('sidebar-backdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.id = 'sidebar-backdrop';
+      backdrop.className = 'sidebar-backdrop';
+      backdrop.addEventListener('click', closeMobileSidebar);
+      document.body.appendChild(backdrop);
+    }
+    backdrop.classList.toggle('active', sidebar.classList.contains('mobile-open'));
+  } else {
+    sidebar.classList.toggle('collapsed');
+  }
+}
+
+function closeMobileSidebar() {
+  document.getElementById('sidebar')?.classList.remove('mobile-open');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (bd) bd.classList.remove('active');
 }
 
 function mostrarSeccion(sec) {
@@ -381,24 +401,63 @@ async function cargarPedidos() {
   }
 
   container.innerHTML = `<div class="table-responsive">
-    <table class="table table-hover">
+    <table class="table table-hover align-middle">
       <thead class="table-light">
-        <tr><th>ID</th><th>Comprador</th><th>Fecha</th><th>Total</th><th>Método pago</th><th>Estado</th></tr>
+        <tr><th>ID</th><th>Comprador</th><th>Productos</th><th>Fecha</th><th>Total</th><th>Método</th><th>Estado</th></tr>
       </thead>
       <tbody>
-        ${data.pedidos.map(p => `
+        ${data.pedidos.map(p => {
+          const detalles = p.detalles || [];
+          const resumen  = detalles.length
+            ? detalles.map(d => `${d.nombre_producto || 'Producto'} ×${d.cantidad}`).join(', ')
+            : '—';
+          const resumenCorto = resumen.length > 45 ? resumen.substring(0, 45) + '…' : resumen;
+          const detalleRows = detalles.map(d => `
+            <div class="d-flex align-items-center gap-2 py-1 border-bottom">
+              <img src="${d.imagen_url || '/img/no-image.png'}" style="width:36px;height:36px;object-fit:cover;border-radius:6px" onerror="this.src='/img/no-image.png'">
+              <div class="flex-grow-1 small">
+                <div class="fw-medium">${d.nombre_producto || '—'}</div>
+                <div class="text-muted">${d.nombre_tienda || ''} ${d.talla ? '· Talla: '+d.talla : ''}</div>
+              </div>
+              <div class="text-end small">
+                <div>×${d.cantidad}</div>
+                <div class="text-primary fw-medium">$${Number(d.subtotal || 0).toLocaleString('es-CO')}</div>
+              </div>
+            </div>`).join('');
+
+          return `
           <tr>
             <td class="text-muted small">#${p.id_pedido}</td>
-            <td class="small">#${p.id_comprador}</td>
+            <td>
+              <div class="fw-medium small">${p.nombre_comprador || '—'}</div>
+              <div class="text-muted" style="font-size:.72rem">#${p.id_comprador}</div>
+            </td>
+            <td class="small">
+              <span class="text-muted">${resumenCorto}</span>
+              ${detalles.length > 1 ? `<button class="btn btn-link btn-sm p-0 ms-1" style="font-size:.72rem"
+                onclick="toggleDetallesPedido(${p.id_pedido})">ver más</button>` : ''}
+              <div id="det-${p.id_pedido}" class="d-none mt-2 border rounded p-2" style="min-width:260px">
+                ${detalleRows}
+                <div class="d-flex justify-content-between small mt-1 pt-1">
+                  <span class="text-muted">Envío: $${Number(p.envio||0).toLocaleString('es-CO')}</span>
+                  <span class="fw-bold">Total: $${Number(p.total||0).toLocaleString('es-CO')}</span>
+                </div>
+              </div>
+            </td>
             <td class="small text-muted">${p.fecha_pedido ? new Date(p.fecha_pedido).toLocaleDateString('es-CO') : '—'}</td>
             <td class="fw-medium text-primary">$${Number(p.total || 0).toLocaleString('es-CO')}</td>
             <td class="small">${p.metodo_pago || '—'}</td>
             <td><span class="badge ${estadoBadge(p.estado)}">${p.estado}</span></td>
-          </tr>
-        `).join('')}
+          </tr>`;
+        }).join('')}
       </tbody>
     </table>
   </div>`;
+}
+
+function toggleDetallesPedido(id) {
+  const el = document.getElementById(`det-${id}`);
+  if (el) el.classList.toggle('d-none');
 }
 
 // ── Reportes ──────────────────────────────────────────────────────────────────
@@ -708,3 +767,22 @@ async function cambiarEstadoUsuario(id, estado) {
 cargarDashboard();
 actualizarBadgeNotif();
 setInterval(actualizarBadgeNotif, 30000);
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.innerWidth <= 768) {
+      const topbar = document.createElement('div');
+      topbar.className = 'mobile-topbar';
+      topbar.innerHTML = `
+        <button class="btn btn-sm" onclick="toggleSidebar()">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <span class="fw-bold" style="font-size:.95rem;color:var(--primary)">EmprendeMarket</span>`;
+      document.getElementById('main-content')?.prepend(topbar);
+
+      document.getElementById('sidebar')?.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', closeMobileSidebar);
+      });
+    }
+  });
+}

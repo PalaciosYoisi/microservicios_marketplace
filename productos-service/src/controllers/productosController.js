@@ -122,8 +122,10 @@ async function verProducto(req, res) {
  */
 async function listarTiendas(req, res) {
   try {
-    const { categoria, buscar, pagina = 1, limite = 9 } = req.query;
-    const filtro = { estado: { $in: ['activa', 'Activa', 'activo'] } };
+    const { categoria, buscar, pagina = 1, limite = 9, propietario } = req.query;
+    const filtro = propietario
+      ? { id_propietario: parseInt(propietario) }
+      : { estado: { $in: ['activa', 'Activa', 'activo'] } };
     if (categoria) filtro.categoria = { $regex: categoria, $options: 'i' };
     if (buscar)    filtro.nombre_tienda = { $regex: buscar, $options: 'i' };
 

@@ -281,7 +281,29 @@ async function getMisVendedores(req, res) {
 
 async function listarPedidosVendedor(req, res) {
   try {
-    const pedidos = await Pedido.find().sort({ fecha_pedido: -1 });
+    // Obtener la tienda del vendedor desde productos-service
+    let idTienda = null;
+    try {
+      const r = await fetch(`${PROD_URL}/tiendas?propietario=${req.usuario.id}`, {
+        signal: AbortSignal.timeout(3000),
+      });
+      const d = await r.json();
+      const tienda = (d.tiendas || []).find(t => Number(t.id_propietario) === Number(req.usuario.id));
+      if (tienda) idTienda = tienda.id_tienda;
+    } catch (_) {}
+
+    // Filtrar pedidos que contienen productos de esta tienda
+    const filtro = idTienda ? { 'detalles.id_tienda': idTienda } : { _id: null };
+    const pedidosRaw = await Pedido.find(filtro).sort({ fecha_pedido: -1 });
+
+    // Incluir solo los detalles de esta tienda en cada pedido
+    const pedidos = pedidosRaw.map(p => {
+      const detsFiltrados = idTienda
+        ? (p.detalles || []).filter(d => Number(d.id_tienda) === Number(idTienda))
+        : p.detalles || [];
+      return { ...p.toObject(), detalles: detsFiltrados };
+    });
+
     return res.json({ success: true, pedidos });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Error al obtener pedidos.' });

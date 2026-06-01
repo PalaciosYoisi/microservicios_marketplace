@@ -14,7 +14,27 @@ let tiendaActual = null;
 let productosActuales = [];
 
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('collapsed');
+  const sidebar = document.getElementById('sidebar');
+  if (window.innerWidth <= 768) {
+    sidebar.classList.toggle('mobile-open');
+    let backdrop = document.getElementById('sidebar-backdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.id = 'sidebar-backdrop';
+      backdrop.className = 'sidebar-backdrop';
+      backdrop.addEventListener('click', closeMobileSidebar);
+      document.body.appendChild(backdrop);
+    }
+    backdrop.classList.toggle('active', sidebar.classList.contains('mobile-open'));
+  } else {
+    sidebar.classList.toggle('collapsed');
+  }
+}
+
+function closeMobileSidebar() {
+  document.getElementById('sidebar')?.classList.remove('mobile-open');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (bd) bd.classList.remove('active');
 }
 
 function mostrarSeccion(sec) {
@@ -183,26 +203,77 @@ async function cargarPedidos() {
   }
 
   lista.innerHTML = `<div class="table-responsive">
-    <table class="table table-hover">
+    <table class="table table-hover align-middle">
       <thead class="table-light"><tr>
-        <th>ID</th><th>Fecha</th><th>Total</th><th>Estado</th><th>Acciones</th>
+        <th>ID</th><th>Comprador</th><th>Fecha</th><th>Total</th><th>Estado</th><th>Acciones</th>
       </tr></thead>
       <tbody>
-        ${data.pedidos.map(p => `
-          <tr>
-            <td>#${p.id_pedido}</td>
-            <td>${new Date(p.fecha_pedido).toLocaleDateString('es-CO')}</td>
-            <td>$${Number(p.total).toLocaleString('es-CO')}</td>
+        ${data.pedidos.map(p => {
+          const detalles = p.detalles || [];
+          const fecha = new Date(p.fecha_pedido).toLocaleDateString('es-CO');
+          return `
+          <tr class="align-middle">
+            <td><strong>#${p.id_pedido}</strong></td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <span class="material-symbols-outlined text-secondary" style="font-size:18px">person</span>
+                <span class="small">${p.nombre_comprador || 'Comprador #' + p.id_comprador}</span>
+              </div>
+            </td>
+            <td class="small text-muted">${fecha}</td>
+            <td><strong>$${Number(p.total).toLocaleString('es-CO')}</strong></td>
             <td><span class="badge ${estadoBadge(p.estado)}">${p.estado}</span></td>
             <td>
-              ${p.estado==='pendiente'   ? `<button class="btn btn-sm btn-success" onclick="procesarPedido(${p.id_pedido})">Procesar</button>` : ''}
-              ${p.estado==='procesando'  ? `<button class="btn btn-sm btn-primary" onclick="marcarEnviado(${p.id_pedido})">Marcar enviado</button>` : ''}
+              <div class="d-flex gap-1 flex-wrap">
+                <button class="btn btn-outline-secondary btn-sm" onclick="toggleDetallesVendedor(${p.id_pedido})" title="Ver productos">
+                  <span class="material-symbols-outlined" style="font-size:16px">expand_more</span>
+                </button>
+                ${p.estado==='pendiente'  ? `<button class="btn btn-sm btn-success" onclick="procesarPedido(${p.id_pedido})">Procesar</button>` : ''}
+                ${p.estado==='procesando' ? `<button class="btn btn-sm btn-primary" onclick="marcarEnviado(${p.id_pedido})">Enviado</button>` : ''}
+              </div>
             </td>
           </tr>
-        `).join('')}
+          <tr id="detalles-v-${p.id_pedido}" class="d-none">
+            <td colspan="6" class="p-0">
+              <div class="p-3 bg-light border-top">
+                <div class="small fw-semibold mb-2 text-muted">Productos del pedido</div>
+                <div class="d-flex flex-column gap-2">
+                  ${detalles.map(d => `
+                    <div class="d-flex align-items-center gap-3 p-2 bg-white rounded border">
+                      <img src="${d.imagen_url || '/images/no-image.svg'}"
+                           style="width:48px;height:48px;object-fit:cover;border-radius:6px"
+                           onerror="this.src='/images/no-image.svg'">
+                      <div class="flex-grow-1">
+                        <div class="small fw-medium">${d.nombre_producto}</div>
+                        <div class="text-muted" style="font-size:.75rem">
+                          ${d.talla ? 'Talla: ' + d.talla + ' · ' : ''}Cant: ${d.cantidad} · $${Number(d.precio_unitario).toLocaleString('es-CO')} c/u
+                        </div>
+                      </div>
+                      <div class="text-end small fw-bold text-primary">$${Number(d.subtotal).toLocaleString('es-CO')}</div>
+                    </div>`).join('')}
+                </div>
+                ${p.direccion_envio ? `<div class="mt-2 small text-muted">
+                  <span class="material-symbols-outlined align-middle" style="font-size:14px">location_on</span>
+                  ${p.direccion_envio}${p.telefono ? ' · Tel: ' + p.telefono : ''}
+                </div>` : ''}
+              </div>
+            </td>
+          </tr>`;
+        }).join('')}
       </tbody>
     </table>
   </div>`;
+}
+
+function toggleDetallesVendedor(id) {
+  const row = document.getElementById(`detalles-v-${id}`);
+  if (!row) return;
+  row.classList.toggle('d-none');
+  const btn = row.previousElementSibling?.querySelector(`[onclick*="toggleDetallesVendedor(${id})"]`);
+  if (btn) {
+    const icon = btn.querySelector('.material-symbols-outlined');
+    if (icon) icon.textContent = row.classList.contains('d-none') ? 'expand_more' : 'expand_less';
+  }
 }
 
 function estadoBadge(estado) {
@@ -1097,8 +1168,24 @@ function iniciarNuevaConv(destId, nombre) {
 document.addEventListener('DOMContentLoaded', () => {
   setupDropZone();
   activarPestanaImagen('archivo');
-  actualizarTallas('General', [], {}); // estado inicial del selector de tallas
+  actualizarTallas('General', [], {});
   cargarDashboard();
   actualizarBadgeNotif();
-  setInterval(actualizarBadgeNotif, 30000); // Polling cada 30 s
+  setInterval(actualizarBadgeNotif, 30000);
+
+  if (window.innerWidth <= 768) {
+    const topbar = document.createElement('div');
+    topbar.className = 'mobile-topbar';
+    topbar.innerHTML = `
+      <button class="btn btn-sm" onclick="toggleSidebar()">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <span class="fw-bold" style="font-size:.95rem;color:var(--primary)">EmprendeMarket</span>`;
+    document.getElementById('main-content')?.prepend(topbar);
+
+    // Close sidebar when a nav link is clicked on mobile
+    document.getElementById('sidebar')?.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', closeMobileSidebar);
+    });
+  }
 });

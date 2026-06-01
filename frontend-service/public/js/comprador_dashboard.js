@@ -10,7 +10,27 @@ if (usuario) {
 }
 
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('collapsed');
+  const sidebar = document.getElementById('sidebar');
+  if (window.innerWidth <= 768) {
+    sidebar.classList.toggle('mobile-open');
+    let backdrop = document.getElementById('sidebar-backdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.id = 'sidebar-backdrop';
+      backdrop.className = 'sidebar-backdrop';
+      backdrop.addEventListener('click', closeMobileSidebar);
+      document.body.appendChild(backdrop);
+    }
+    backdrop.classList.toggle('active', sidebar.classList.contains('mobile-open'));
+  } else {
+    sidebar.classList.toggle('collapsed');
+  }
+}
+
+function closeMobileSidebar() {
+  document.getElementById('sidebar')?.classList.remove('mobile-open');
+  const bd = document.getElementById('sidebar-backdrop');
+  if (bd) bd.classList.remove('active');
 }
 
 function mostrarSeccion(sec) {
@@ -721,4 +741,19 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarDashboard();
   actualizarBadgeNotif();
   setInterval(actualizarBadgeNotif, 30000);
+
+  if (window.innerWidth <= 768) {
+    const topbar = document.createElement('div');
+    topbar.className = 'mobile-topbar';
+    topbar.innerHTML = `
+      <button class="btn btn-sm" onclick="toggleSidebar()">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <span class="fw-bold" style="font-size:.95rem;color:var(--primary)">EmprendeMarket</span>`;
+    document.getElementById('main-content')?.prepend(topbar);
+
+    document.getElementById('sidebar')?.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', closeMobileSidebar);
+    });
+  }
 });

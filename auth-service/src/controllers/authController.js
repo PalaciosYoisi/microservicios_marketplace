@@ -278,9 +278,9 @@ async function actualizarPerfil(req, res) {
 async function subirFotoPerfil(req, res) {
   try {
     if (!req.file) return res.status(422).json({ success: false, message: 'No se recibió ningún archivo.' });
-    const url = `/uploads/perfiles/${req.file.filename}`;
-    await Usuario.updateOne({ id_usuario: req.usuario.id }, { $set: { foto_perfil: url } });
-    return res.json({ success: true, message: 'Foto de perfil actualizada.', url });
+    const base64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    await Usuario.updateOne({ id_usuario: req.usuario.id }, { $set: { foto_perfil: base64 } });
+    return res.json({ success: true, message: 'Foto de perfil actualizada.', url: base64 });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Error al subir la foto.' });
   }

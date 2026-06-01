@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 const multer = require('multer');
 const router = express.Router();
 const ctrl = require('../controllers/authController');
@@ -12,17 +11,10 @@ function soloAdmin(req, res, next) {
   next();
 }
 
-// ── Multer: fotos de perfil → frontend-service/public/uploads/perfiles/ ──────
-const storage = multer.diskStorage({
-  destination: path.join(__dirname, '../../../frontend-service/public/uploads/perfiles'),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.jpg';
-    cb(null, `perfil-${Date.now()}${ext}`);
-  },
-});
+// ── Multer: fotos de perfil en memoria → se guardan como base64 en MongoDB ────
 const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) cb(null, true);
     else cb(new Error('Solo se permiten imágenes.'));
