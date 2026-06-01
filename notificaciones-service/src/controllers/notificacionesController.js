@@ -42,13 +42,14 @@ async function crearNotificacionInterna(req, res) {
   }
   try {
     const { id_usuario, titulo, mensaje, tipo } = req.body;
-    if (!id_usuario || !titulo || !mensaje) {
+    const uidParsed = parseInt(id_usuario);
+    if (!id_usuario || isNaN(uidParsed) || !titulo || !mensaje) {
       return res.status(422).json({ success: false, message: 'Faltan campos requeridos.' });
     }
     const nuevoId = await siguienteId(Notificacion, 'id_notificacion');
     const notif = new Notificacion({
       id_notificacion: nuevoId,
-      id_usuario: parseInt(id_usuario),
+      id_usuario: uidParsed,
       titulo,
       mensaje,
       tipo: tipo || 'sistema',
@@ -67,7 +68,9 @@ async function crearNotificacionInterna(req, res) {
 
 async function listarNotificaciones(req, res) {
   try {
-    const notificaciones = await Notificacion.find({ id_usuario: req.usuario.id }).sort({ fecha_creacion: -1 });
+    const uid = Number(req.usuario.id);
+    if (!uid || isNaN(uid)) return res.json({ success: true, notificaciones: [] });
+    const notificaciones = await Notificacion.find({ id_usuario: uid }).sort({ fecha_creacion: -1 });
     return res.json({ success: true, notificaciones });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Error al obtener notificaciones.' });
@@ -76,7 +79,9 @@ async function listarNotificaciones(req, res) {
 
 async function contarNoLeidas(req, res) {
   try {
-    const count = await Notificacion.countDocuments({ id_usuario: req.usuario.id, leida: false });
+    const uid = Number(req.usuario.id);
+    if (!uid || isNaN(uid)) return res.json({ success: true, count: 0 });
+    const count = await Notificacion.countDocuments({ id_usuario: uid, leida: false });
     return res.json({ success: true, count });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Error al contar notificaciones.' });

@@ -240,16 +240,37 @@ async function getMisVendedores(req, res) {
   try {
     const pedidos = await Pedido.find({ id_comprador: req.usuario.id });
     const tiendasMap = {};
+    const productoIdsFallback = [];
+
     for (const ped of pedidos) {
       for (const det of (ped.detalles || [])) {
-        if (det.id_tienda && !tiendasMap[det.id_tienda]) {
-          tiendasMap[det.id_tienda] = {
-            id_tienda:    det.id_tienda,
-            nombre_tienda: det.nombre_tienda || `Tienda #${det.id_tienda}`,
+        if (det.id_tienda) {
+          if (!tiendasMap[det.id_tienda]) {
+            tiendasMap[det.id_tienda] = {
+              id_tienda:     det.id_tienda,
+              nombre_tienda: det.nombre_tienda || `Tienda #${det.id_tienda}`,
+            };
+          }
+        } else if (det.id_producto) {
+          productoIdsFallback.push(det.id_producto);
+        }
+      }
+    }
+
+    // Para pedidos viejos sin id_tienda, buscar la tienda desde productos-service
+    if (productoIdsFallback.length > 0) {
+      const prods = await fetchProductosBulk([...new Set(productoIdsFallback)]);
+      for (const prod of prods) {
+        const tid = prod.id_tienda;
+        if (tid && !tiendasMap[tid]) {
+          tiendasMap[tid] = {
+            id_tienda:     tid,
+            nombre_tienda: prod.tienda?.nombre_tienda || `Tienda #${tid}`,
           };
         }
       }
     }
+
     return res.json({ success: true, vendedores: Object.values(tiendasMap) });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Error al obtener vendedores.' });

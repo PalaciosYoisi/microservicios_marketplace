@@ -532,7 +532,17 @@ async function obtenerProductosBulk(req, res) {
     const { ids } = req.body;
     if (!Array.isArray(ids)) return res.status(422).json({ success: false, message: 'ids debe ser un arreglo.' });
     const productos = await Producto.find({ id_producto: { $in: ids.map(Number) } });
-    return res.json({ success: true, productos });
+
+    const tiendaIds = [...new Set(productos.map(p => p.id_tienda).filter(Boolean))];
+    const tiendas = await Tienda.find({ id_tienda: { $in: tiendaIds } });
+    const tiendasMap = Object.fromEntries(tiendas.map(t => [t.id_tienda, t]));
+
+    const productosEnriquecidos = productos.map(p => ({
+      ...p.toObject(),
+      tienda: tiendasMap[p.id_tienda] || null,
+    }));
+
+    return res.json({ success: true, productos: productosEnriquecidos });
   } catch (err) {
     return res.status(500).json({ success: false, message: 'Error interno.' });
   }

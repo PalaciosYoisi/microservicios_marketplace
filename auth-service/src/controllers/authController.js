@@ -320,4 +320,46 @@ async function listarTodosUsuarios(req, res) {
   }
 }
 
-module.exports = { registrar, iniciarSesion, cerrarSesion, obtenerPerfil, verificarToken, actualizarPerfil, subirFotoPerfil, obtenerUsuariosBulk, listarTodosUsuarios };
+// ── Endpoints admin (requieren JWT de administrador) ──────────────────────────
+
+async function adminListarUsuarios(req, res) {
+  try {
+    const { rol, estado, buscar } = req.query;
+    const filtro = {};
+    if (rol)    filtro.rol = rol;
+    if (estado) filtro.estado = estado;
+    if (buscar) {
+      const re = { $regex: buscar, $options: 'i' };
+      filtro.$or = [{ nombre: re }, { apellido: re }, { correo: re }, { cedula: re }];
+    }
+    const usuarios = await Usuario.find(filtro)
+      .select('-contrasena -Contrasena -password')
+      .sort({ id_usuario: 1 });
+    return res.json({ success: true, usuarios });
+  } catch (err) {
+    console.error('[auth-service] adminListarUsuarios:', err);
+    return res.status(500).json({ success: false, message: 'Error al listar usuarios.' });
+  }
+}
+
+async function adminCambiarEstadoUsuario(req, res) {
+  try {
+    const { estado } = req.body;
+    if (!['activo', 'suspendido', 'inactivo'].includes(estado)) {
+      return res.status(422).json({ success: false, message: 'Estado no válido.' });
+    }
+    const id = parseInt(req.params.id);
+    const usuario = await Usuario.findOne({ id_usuario: id });
+    if (!usuario) return res.status(404).json({ success: false, message: 'Usuario no encontrado.' });
+    if (usuario.rol === 'administrador') {
+      return res.status(403).json({ success: false, message: 'No se puede modificar el estado de un administrador.' });
+    }
+    await Usuario.updateOne({ id_usuario: id }, { $set: { estado } });
+    return res.json({ success: true, message: `Usuario ${estado === 'suspendido' ? 'suspendido' : 'activado'} correctamente.` });
+  } catch (err) {
+    console.error('[auth-service] adminCambiarEstadoUsuario:', err);
+    return res.status(500).json({ success: false, message: 'Error al cambiar estado del usuario.' });
+  }
+}
+
+module.exports = { registrar, iniciarSesion, cerrarSesion, obtenerPerfil, verificarToken, actualizarPerfil, subirFotoPerfil, obtenerUsuariosBulk, listarTodosUsuarios, adminListarUsuarios, adminCambiarEstadoUsuario };

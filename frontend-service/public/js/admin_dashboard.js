@@ -8,7 +8,7 @@ function toggleSidebar() {
 }
 
 function mostrarSeccion(sec) {
-  ['dashboard', 'tiendas', 'productos', 'pedidos', 'reportes', 'perfil'].forEach(s => {
+  ['dashboard', 'tiendas', 'productos', 'pedidos', 'reportes', 'usuarios', 'perfil'].forEach(s => {
     const el = document.getElementById(`sec-${s}`);
     if (el) el.classList.add('d-none');
   });
@@ -20,6 +20,7 @@ function mostrarSeccion(sec) {
   if (sec === 'productos') cargarProductos();
   if (sec === 'pedidos')   cargarPedidos();
   if (sec === 'reportes')  cargarReportesAdmin();
+  if (sec === 'usuarios')  cargarUsuarios();
   if (sec === 'perfil')    cargarPerfilA();
 }
 
@@ -600,6 +601,107 @@ async function actualizarBadgeNotif() {
     badge.textContent = count > 9 ? '9+' : count;
     badge.classList.toggle('d-none', count === 0);
   }
+}
+
+// ── Usuarios ──────────────────────────────────────────────────────────────────
+
+let _debounceTimer = null;
+function debounceCargarUsuarios() {
+  clearTimeout(_debounceTimer);
+  _debounceTimer = setTimeout(cargarUsuarios, 400);
+}
+
+async function cargarUsuarios() {
+  const container = document.getElementById('lista-usuarios');
+  container.innerHTML = `<div class="text-center py-4"><div class="spinner-border text-primary spinner-border-sm"></div></div>`;
+
+  const rol    = document.getElementById('filtroRolUsuarios')?.value  || '';
+  const estado = document.getElementById('filtroEstadoUsuarios')?.value || '';
+  const buscar = document.getElementById('buscarUsuario')?.value       || '';
+
+  const params = new URLSearchParams();
+  if (rol)    params.set('rol', rol);
+  if (estado) params.set('estado', estado);
+  if (buscar) params.set('buscar', buscar);
+
+  const res = await apiFetch(`${API}/admin/usuarios?${params}`);
+  if (!res) { container.innerHTML = `<div class="alert alert-danger m-3">Error al cargar usuarios.</div>`; return; }
+  const data = await res.json();
+  const usuarios = data.usuarios || [];
+
+  if (!usuarios.length) {
+    container.innerHTML = `<div class="text-center py-5 text-muted">
+      <span class="material-symbols-outlined icon-lg">group_off</span>
+      <p class="mt-2">No se encontraron usuarios con esos filtros.</p>
+    </div>`;
+    return;
+  }
+
+  const ROL_LABEL  = { comprador: 'Comprador', emprendedor: 'Vendedor', administrador: 'Admin' };
+  const ROL_BADGE  = { comprador: 'bg-success', emprendedor: 'bg-warning text-dark', administrador: 'bg-danger' };
+  const EST_BADGE  = { activo: 'bg-success', suspendido: 'bg-danger', inactivo: 'bg-secondary' };
+
+  container.innerHTML = `<div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th><th>Nombre</th><th>Correo</th><th>Cédula</th>
+          <th>Rol</th><th>Estado</th><th>Último acceso</th><th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${usuarios.map(u => {
+          const rolBadge = ROL_BADGE[u.rol] || 'bg-secondary';
+          const rolLabel = ROL_LABEL[u.rol]  || u.rol;
+          const estNorm  = (u.estado || 'activo').toLowerCase();
+          const estBadge = EST_BADGE[estNorm]  || 'bg-secondary';
+          const acceso   = u.ultimo_acceso
+            ? new Date(u.ultimo_acceso).toLocaleDateString('es-CO')
+            : 'Nunca';
+          const esAdmin  = u.rol === 'administrador';
+
+          let acciones = '';
+          if (!esAdmin) {
+            if (estNorm === 'suspendido') {
+              acciones = `<button class="btn btn-success btn-sm" onclick="cambiarEstadoUsuario(${u.id_usuario}, 'activo')" title="Activar">
+                <span class="material-symbols-outlined icon-sm">check_circle</span> Activar
+              </button>`;
+            } else {
+              acciones = `<button class="btn btn-warning btn-sm" onclick="cambiarEstadoUsuario(${u.id_usuario}, 'suspendido')" title="Suspender">
+                <span class="material-symbols-outlined icon-sm">block</span> Suspender
+              </button>`;
+            }
+          } else {
+            acciones = `<span class="text-muted small">—</span>`;
+          }
+
+          return `<tr>
+            <td class="text-muted small">#${u.id_usuario}</td>
+            <td class="fw-medium">${u.nombre || ''} ${u.apellido || ''}</td>
+            <td class="small">${u.correo || '—'}</td>
+            <td class="small text-muted">${u.cedula || '—'}</td>
+            <td><span class="badge ${rolBadge}">${rolLabel}</span></td>
+            <td><span class="badge ${estBadge}">${estNorm}</span></td>
+            <td class="small text-muted">${acceso}</td>
+            <td>${acciones}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+async function cambiarEstadoUsuario(id, estado) {
+  const etiq = estado === 'suspendido' ? 'suspender' : 'activar';
+  if (!confirm(`¿${etiq} este usuario?`)) return;
+  const res = await apiFetch(`${API}/admin/usuarios/${id}/estado`, {
+    method: 'POST',
+    body: JSON.stringify({ estado }),
+  });
+  if (!res) return;
+  const data = await res.json();
+  toast(data.message || (data.success ? 'Usuario actualizado.' : 'Error'), data.success ? 'success' : 'danger');
+  if (data.success) cargarUsuarios();
 }
 
 // Inicializar

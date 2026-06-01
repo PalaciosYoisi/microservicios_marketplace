@@ -89,8 +89,8 @@ function makeProxy(target, pathFilter, pathRewrite) {
 // Auth Service: /api/auth/** → auth-service /auth/**
 app.use(makeProxy(
   SERVICES.auth,
-  '/api/auth',
-  { '^/api/auth': '/auth' }
+  ['/api/auth', '/api/admin/usuarios'],
+  { '^/api/auth': '/auth', '^/api/admin/usuarios': '/auth/admin/usuarios' }
 ));
 
 // Productos Service
