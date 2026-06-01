@@ -12,6 +12,7 @@ if (usuario) {
 
 let tiendaActual = null;
 let productosActuales = [];
+let pedidosDataVendedor = [];
 
 function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
@@ -192,9 +193,10 @@ async function cargarPedidos() {
   const res = await apiFetch(`${API}/vendedor/pedidos`);
   if (!res) return;
   const data = await res.json();
+  pedidosDataVendedor = data.pedidos || [];
   const lista = document.getElementById('listaPedidos');
 
-  if (!data.pedidos?.length) {
+  if (!pedidosDataVendedor.length) {
     lista.innerHTML = `<div class="text-center py-5 text-muted">
       <span class="material-symbols-outlined icon-xl">receipt_long</span>
       <p>No hay pedidos aún.</p>
@@ -205,58 +207,23 @@ async function cargarPedidos() {
   lista.innerHTML = `<div class="table-responsive">
     <table class="table table-hover align-middle">
       <thead class="table-light"><tr>
-        <th>ID</th><th>Comprador</th><th>Fecha</th><th>Total</th><th>Estado</th><th>Acciones</th>
+        <th>ID</th><th>Comprador</th><th>Fecha</th><th>Total</th><th>Estado</th><th></th>
       </tr></thead>
       <tbody>
-        ${data.pedidos.map(p => {
-          const detalles = p.detalles || [];
-          const fecha = new Date(p.fecha_pedido).toLocaleDateString('es-CO');
+        ${pedidosDataVendedor.map(p => {
+          const fecha = p.fecha_pedido ? new Date(p.fecha_pedido).toLocaleDateString('es-CO') : '—';
           return `
           <tr class="align-middle">
-            <td><strong>#${p.id_pedido}</strong></td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <span class="material-symbols-outlined text-secondary" style="font-size:18px">person</span>
-                <span class="small">${p.nombre_comprador || 'Comprador #' + p.id_comprador}</span>
-              </div>
-            </td>
+            <td class="fw-medium small">#${p.id_pedido}</td>
+            <td class="small">${p.nombre_comprador || 'Comprador #' + p.id_comprador}</td>
             <td class="small text-muted">${fecha}</td>
-            <td><strong>$${Number(p.total).toLocaleString('es-CO')}</strong></td>
+            <td class="fw-medium text-primary">$${Number(p.total).toLocaleString('es-CO')}</td>
             <td><span class="badge ${estadoBadge(p.estado)}">${p.estado}</span></td>
             <td>
-              <div class="d-flex gap-1 flex-wrap">
-                <button class="btn btn-outline-secondary btn-sm" onclick="toggleDetallesVendedor(${p.id_pedido})" title="Ver productos">
-                  <span class="material-symbols-outlined" style="font-size:16px">expand_more</span>
-                </button>
-                ${p.estado==='pendiente'  ? `<button class="btn btn-sm btn-success" onclick="procesarPedido(${p.id_pedido})">Procesar</button>` : ''}
-                ${p.estado==='procesando' ? `<button class="btn btn-sm btn-primary" onclick="marcarEnviado(${p.id_pedido})">Enviado</button>` : ''}
-              </div>
-            </td>
-          </tr>
-          <tr id="detalles-v-${p.id_pedido}" class="d-none">
-            <td colspan="6" class="p-0">
-              <div class="p-3 bg-light border-top">
-                <div class="small fw-semibold mb-2 text-muted">Productos del pedido</div>
-                <div class="d-flex flex-column gap-2">
-                  ${detalles.map(d => `
-                    <div class="d-flex align-items-center gap-3 p-2 bg-white rounded border">
-                      <img src="${d.imagen_url || '/images/no-image.svg'}"
-                           style="width:48px;height:48px;object-fit:cover;border-radius:6px"
-                           onerror="this.src='/images/no-image.svg'">
-                      <div class="flex-grow-1">
-                        <div class="small fw-medium">${d.nombre_producto}</div>
-                        <div class="text-muted" style="font-size:.75rem">
-                          ${d.talla ? 'Talla: ' + d.talla + ' · ' : ''}Cant: ${d.cantidad} · $${Number(d.precio_unitario).toLocaleString('es-CO')} c/u
-                        </div>
-                      </div>
-                      <div class="text-end small fw-bold text-primary">$${Number(d.subtotal).toLocaleString('es-CO')}</div>
-                    </div>`).join('')}
-                </div>
-                ${p.direccion_envio ? `<div class="mt-2 small text-muted">
-                  <span class="material-symbols-outlined align-middle" style="font-size:14px">location_on</span>
-                  ${p.direccion_envio}${p.telefono ? ' · Tel: ' + p.telefono : ''}
-                </div>` : ''}
-              </div>
+              <button class="btn btn-sm btn-outline-primary rounded-3"
+                      onclick="verDetallePedidoV(${p.id_pedido})" title="Ver detalles">
+                <span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle">visibility</span>
+              </button>
             </td>
           </tr>`;
         }).join('')}
@@ -265,15 +232,178 @@ async function cargarPedidos() {
   </div>`;
 }
 
-function toggleDetallesVendedor(id) {
-  const row = document.getElementById(`detalles-v-${id}`);
-  if (!row) return;
-  row.classList.toggle('d-none');
-  const btn = row.previousElementSibling?.querySelector(`[onclick*="toggleDetallesVendedor(${id})"]`);
-  if (btn) {
-    const icon = btn.querySelector('.material-symbols-outlined');
-    if (icon) icon.textContent = row.classList.contains('d-none') ? 'expand_more' : 'expand_less';
+function verDetallePedidoV(id) {
+  const p = pedidosDataVendedor.find(x => x.id_pedido === id);
+  if (p) verDetallePedido(p, 'vendedor');
+}
+
+function initModalDetallePedido() {
+  if (document.getElementById('modalDetallePedido')) return;
+  const div = document.createElement('div');
+  div.innerHTML = `
+  <div class="modal fade" id="modalDetallePedido" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content border-0" style="border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.18)">
+        <div class="modal-header border-0" style="padding:1.4rem 1.5rem .8rem">
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="material-symbols-outlined text-primary" style="font-size:22px">receipt_long</span>
+              <h5 class="modal-title fw-bold mb-0" id="mdp-titulo">Pedido</h5>
+              <span id="mdp-badge" class="badge">—</span>
+            </div>
+            <div class="text-muted small mt-1" id="mdp-fecha">—</div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-0">
+          <div class="px-4 py-3 border-bottom" style="background:#f8fafc">
+            <div id="mdp-timeline" class="d-flex align-items-start"></div>
+          </div>
+          <div id="mdp-info-wrap" class="px-4 py-3 border-bottom">
+            <div class="small text-uppercase fw-semibold text-muted mb-3" style="letter-spacing:.06em">Información</div>
+            <div id="mdp-info" class="d-flex flex-column gap-2"></div>
+          </div>
+          <div class="px-4 py-3">
+            <div class="small text-uppercase fw-semibold text-muted mb-3" style="letter-spacing:.06em">Productos</div>
+            <div id="mdp-productos" class="d-flex flex-column gap-2"></div>
+          </div>
+          <div class="px-4 py-3 border-top" style="background:#f8fafc">
+            <div id="mdp-resumen"></div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 d-flex gap-2 justify-content-end" id="mdp-footer" style="padding:.8rem 1.5rem"></div>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(div.firstElementChild);
+}
+
+function verDetallePedido(pedido, contexto) {
+  initModalDetallePedido();
+
+  const PASOS = [
+    { key: 'pendiente',  label: 'Recibido',   icon: 'schedule' },
+    { key: 'procesando', label: 'Preparando',  icon: 'inventory' },
+    { key: 'enviado',    label: 'En camino',   icon: 'local_shipping' },
+    { key: 'entregado',  label: 'Entregado',   icon: 'done_all' },
+  ];
+  const estadoActual = (pedido.estado || '').toLowerCase();
+  const cancelado    = estadoActual === 'cancelado';
+  const idxActual    = PASOS.findIndex(p => p.key === estadoActual);
+
+  document.getElementById('mdp-titulo').textContent = 'Pedido #' + pedido.id_pedido;
+  document.getElementById('mdp-fecha').textContent  = pedido.fecha_pedido
+    ? 'Realizado el ' + new Date(pedido.fecha_pedido).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })
+    : '—';
+  const badge = document.getElementById('mdp-badge');
+  badge.className   = 'badge ' + estadoBadge(pedido.estado);
+  badge.textContent = pedido.estado || '—';
+
+  const tlEl = document.getElementById('mdp-timeline');
+  if (cancelado) {
+    tlEl.innerHTML = `<div class="d-flex align-items-center gap-2 text-danger py-1 fw-medium">
+      <span class="material-symbols-outlined">cancel</span>Pedido cancelado
+    </div>`;
+  } else {
+    tlEl.innerHTML = PASOS.map((paso, i) => {
+      const done   = i <= idxActual;
+      const active = i === idxActual;
+      const dotBg  = done  ? 'var(--primary)' : '#fff';
+      const dotBd  = (done || active) ? 'var(--primary)' : '#dee2e6';
+      const dotClr = done  ? '#fff' : (active ? 'var(--primary)' : '#adb5bd');
+      const lblClr = (done || active) ? 'var(--primary)' : '#adb5bd';
+      const lineL  = i > 0
+        ? '<div style="position:absolute;top:16px;left:0;right:50%;height:2px;background:' + (i <= idxActual ? 'var(--primary)' : '#dee2e6') + ';z-index:0"></div>'
+        : '';
+      const lineR  = i < PASOS.length - 1
+        ? '<div style="position:absolute;top:16px;left:50%;right:0;height:2px;background:' + (i < idxActual ? 'var(--primary)' : '#dee2e6') + ';z-index:0"></div>'
+        : '';
+      return '<div class="flex-fill d-flex flex-column align-items-center position-relative">' +
+        lineL + lineR +
+        '<div class="rounded-circle d-flex align-items-center justify-content-center" style="width:34px;height:34px;background:' + dotBg + ';border:2px solid ' + dotBd + ';position:relative;z-index:1;flex-shrink:0">' +
+        '<span class="material-symbols-outlined" style="font-size:16px;color:' + dotClr + '">' + paso.icon + '</span>' +
+        '</div>' +
+        '<div class="mt-1 text-center" style="font-size:.65rem;color:' + lblClr + ';font-weight:' + (active ? 700 : 500) + ';line-height:1.3">' + paso.label + '</div>' +
+        '</div>';
+    }).join('');
   }
+
+  const infoWrap = document.getElementById('mdp-info-wrap');
+  let infoHtml = '';
+  if (contexto !== 'comprador' && (pedido.nombre_comprador || pedido.id_comprador)) {
+    infoHtml += '<div class="d-flex align-items-center gap-2">' +
+      '<div class="rounded-circle bg-light d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px">' +
+      '<span class="material-symbols-outlined text-secondary" style="font-size:18px">person</span></div>' +
+      '<div><div class="fw-medium small">' + (pedido.nombre_comprador || 'Comprador') + '</div>' +
+      '<div class="text-muted" style="font-size:.72rem">ID #' + pedido.id_comprador + '</div></div></div>';
+  }
+  if (pedido.direccion_envio) {
+    infoHtml += '<div class="d-flex align-items-center gap-2">' +
+      '<div class="rounded-circle bg-light d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px">' +
+      '<span class="material-symbols-outlined text-secondary" style="font-size:18px">location_on</span></div>' +
+      '<div class="small">' + pedido.direccion_envio + (pedido.telefono ? ' &nbsp;·&nbsp; Tel: ' + pedido.telefono : '') + '</div></div>';
+  }
+  if (pedido.metodo_pago) {
+    infoHtml += '<div class="d-flex align-items-center gap-2">' +
+      '<div class="rounded-circle bg-light d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px">' +
+      '<span class="material-symbols-outlined text-secondary" style="font-size:18px">credit_card</span></div>' +
+      '<div class="small text-muted">' + pedido.metodo_pago + (pedido.transaccion_id ? ' &nbsp;·&nbsp; ' + pedido.transaccion_id : '') + '</div></div>';
+  }
+  document.getElementById('mdp-info').innerHTML = infoHtml;
+  infoWrap.style.display = infoHtml ? '' : 'none';
+
+  const detalles = pedido.detalles || [];
+  document.getElementById('mdp-productos').innerHTML = detalles.length
+    ? detalles.map(d =>
+        '<div class="d-flex align-items-center gap-3 p-3 rounded-3 border">' +
+        '<img src="' + (d.imagen_url || '/images/no-image.svg') + '" onerror="this.src=\'/images/no-image.svg\'" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex-shrink:0">' +
+        '<div class="flex-grow-1 overflow-hidden">' +
+        '<div class="fw-semibold text-truncate">' + (d.nombre_producto || '—') + '</div>' +
+        '<div class="text-muted small">' + (d.nombre_tienda || '') + '</div>' +
+        (d.talla ? '<span class="badge bg-light text-dark border mt-1" style="font-size:.7rem">Talla: ' + d.talla + '</span>' : '') +
+        '</div>' +
+        '<div class="text-end flex-shrink-0">' +
+        '<div class="text-muted small">×' + d.cantidad + '</div>' +
+        '<div class="fw-bold text-primary">$' + Number(d.subtotal || 0).toLocaleString('es-CO') + '</div>' +
+        '<div class="text-muted" style="font-size:.7rem">$' + Number(d.precio_unitario || 0).toLocaleString('es-CO') + ' c/u</div>' +
+        '</div></div>'
+      ).join('')
+    : '<div class="text-center text-muted py-3 small">Sin productos registrados</div>';
+
+  const subtotal = Number(pedido.subtotal) || (Number(pedido.total || 0) - Number(pedido.envio || 0));
+  const envio    = Number(pedido.envio || 0);
+  const total    = Number(pedido.total || 0);
+  document.getElementById('mdp-resumen').innerHTML =
+    '<div class="d-flex flex-column gap-1" style="font-size:.9rem">' +
+    '<div class="d-flex justify-content-between text-muted"><span>Subtotal</span><span>$' + subtotal.toLocaleString('es-CO') + '</span></div>' +
+    '<div class="d-flex justify-content-between text-muted"><span>Envío</span><span>' +
+      (envio === 0 ? '<span class="text-success fw-medium">Gratis</span>' : '$' + envio.toLocaleString('es-CO')) +
+    '</span></div>' +
+    '<div class="d-flex justify-content-between fw-bold pt-2 border-top mt-1">' +
+    '<span>Total</span><span class="text-primary" style="font-size:1.1rem">$' + total.toLocaleString('es-CO') + '</span></div></div>';
+
+  const footer = document.getElementById('mdp-footer');
+  let footerHtml = '<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>';
+  if (contexto === 'vendedor') {
+    if (pedido.estado === 'pendiente') {
+      footerHtml = '<button class="btn btn-success" onclick="procesarPedido(' + pedido.id_pedido + '); bootstrap.Modal.getInstance(document.getElementById(\'modalDetallePedido\'))?.hide()">' +
+        '<span class="material-symbols-outlined icon-sm me-1">inventory</span>Procesar pedido</button>' + footerHtml;
+    } else if (pedido.estado === 'procesando') {
+      footerHtml = '<button class="btn btn-primary" onclick="marcarEnviado(' + pedido.id_pedido + '); bootstrap.Modal.getInstance(document.getElementById(\'modalDetallePedido\'))?.hide()">' +
+        '<span class="material-symbols-outlined icon-sm me-1">local_shipping</span>Marcar enviado</button>' + footerHtml;
+    }
+  } else if (contexto === 'comprador') {
+    if (pedido.estado === 'enviado') {
+      footerHtml = '<button class="btn btn-success" onclick="marcarRecibido(' + pedido.id_pedido + '); bootstrap.Modal.getInstance(document.getElementById(\'modalDetallePedido\'))?.hide()">' +
+        '<span class="material-symbols-outlined icon-sm me-1">done_all</span>Confirmar recepción</button>' + footerHtml;
+    } else if (pedido.estado === 'entregado' && detalles.length > 0) {
+      footerHtml = '<button class="btn btn-warning" onclick="abrirModalResenaBtn(' + pedido.id_pedido + '); bootstrap.Modal.getInstance(document.getElementById(\'modalDetallePedido\'))?.hide()">' +
+        '<span class="material-symbols-outlined icon-sm me-1">star</span>Dejar reseña</button>' + footerHtml;
+    }
+  }
+  footer.innerHTML = footerHtml;
+
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDetallePedido')).show();
 }
 
 function estadoBadge(estado) {

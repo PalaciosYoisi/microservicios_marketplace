@@ -211,3 +211,25 @@ body.dashboard-layout {
 .estrella-btn:hover,
 .estrella-btn.activa { transform: scale(1.15); }
 .estrella-btn.activa { color: #f59e0b !important; }
+
+/* ── Modal Detalle Pedido ── */
+#modalDetallePedido .modal-content {
+  border-radius: 16px;
+  overflow: hidden;
+}
+#modalDetallePedido .modal-body {
+  overflow-y: auto;
+  max-height: 65vh;
+}
+#modalDetallePedido #mdp-productos .border {
+  transition: box-shadow .15s;
+}
+#modalDetallePedido #mdp-productos .border:hover {
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+}
+@media (max-width: 576px) {
+  #modalDetallePedido .modal-dialog { margin: .5rem; }
+  #modalDetallePedido #mdp-timeline { flex-wrap: nowrap; overflow-x: auto; }
+  #modalDetallePedido .modal-footer { flex-direction: column; align-items: stretch; }
+  #modalDetallePedido .modal-footer .btn { width: 100%; }
+}
